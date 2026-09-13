@@ -3,7 +3,6 @@ import SwiftUI
 struct DayPlanView: View {
     let weather: DailyWeather
     let recommendation: OutfitRecommendation
-    let onRefresh: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -36,13 +35,6 @@ struct DayPlanView: View {
             }
             .padding()
             .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
-
-            Button(action: onRefresh) {
-                Label("Refresh", systemImage: "arrow.clockwise")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.bordered)
-            .padding(.top, 8)
         }
     }
 

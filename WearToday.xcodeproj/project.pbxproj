@@ -13,6 +13,7 @@
 		17D969587D08767FF52F298C /* PlanTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CB4A54EF15B6FA4E7C46495 /* PlanTimelineProvider.swift */; };
 		1FAF12D18499270FFE1AAC38 /* WearTodayWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3396C43EAC2CAFDEAB5564A4 /* WearTodayWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		21B6E5C77065276380A26AA3 /* DayPlanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B1517DD78F053F63F34980 /* DayPlanViewModel.swift */; };
+		2EBD6CC8E9D5F72A35448C5A /* LocationPreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EA020D911A6DD59210884A /* LocationPreferenceStore.swift */; };
 		44558A42FCCEBEBB24BE1E31 /* PlanSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7646D4FAF10CF78590280CBC /* PlanSnapshot.swift */; };
 		45DD1C65589334462E6BAA6D /* DayPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9897E92C7EBBB3F74BADE131 /* DayPlanView.swift */; };
 		4C95FA8113365C9F3D2133DF /* WearTodayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A30CA575A511C4C1CF62D34 /* WearTodayApp.swift */; };
@@ -27,6 +28,7 @@
 		B0652AE2E2082131240744B8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A5D1871054C86610DB402A4 /* Assets.xcassets */; };
 		B5DB48D1FADC0440AA8BCFC3 /* DailyWeather.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25B71CD96597F7F92E2FC5F9 /* DailyWeather.swift */; };
 		C00CE4CC22E3E5486290E57E /* PlanSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7646D4FAF10CF78590280CBC /* PlanSnapshot.swift */; };
+		C460295727650884E9719E67 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E9F0729A3D8439D7109066 /* SettingsView.swift */; };
 		EE1551AF0039F4132FC06101 /* SkeletonLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C177C1C50376FA82FA6820A0 /* SkeletonLoadingView.swift */; };
 		F13D88994BEAC60771E91CF3 /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24672D02697F8B29EC456943 /* WeatherService.swift */; };
 		FB0A5F6483677520A5C51827 /* ErrorStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3F81CD728DCC212727CB9 /* ErrorStateView.swift */; };
@@ -57,6 +59,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		01E9F0729A3D8439D7109066 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		06B1517DD78F053F63F34980 /* DayPlanViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPlanViewModel.swift; sourceTree = "<group>"; };
 		0CD3F81CD728DCC212727CB9 /* ErrorStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorStateView.swift; sourceTree = "<group>"; };
 		1A258C5E694ECF9974C23B78 /* DescriptionWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DescriptionWidget.swift; sourceTree = "<group>"; };
@@ -81,6 +84,7 @@
 		C177C1C50376FA82FA6820A0 /* SkeletonLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonLoadingView.swift; sourceTree = "<group>"; };
 		CC3AFDC6D7F5F011BEA834A3 /* OutfitAdvisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitAdvisor.swift; sourceTree = "<group>"; };
 		E3B3B0F1E063EF818C37D9B3 /* EmojiWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiWidget.swift; sourceTree = "<group>"; };
+		F0EA020D911A6DD59210884A /* LocationPreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPreferenceStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -132,6 +136,7 @@
 				9897E92C7EBBB3F74BADE131 /* DayPlanView.swift */,
 				06B1517DD78F053F63F34980 /* DayPlanViewModel.swift */,
 				0CD3F81CD728DCC212727CB9 /* ErrorStateView.swift */,
+				01E9F0729A3D8439D7109066 /* SettingsView.swift */,
 				C177C1C50376FA82FA6820A0 /* SkeletonLoadingView.swift */,
 			);
 			path = Views;
@@ -156,6 +161,7 @@
 			isa = PBXGroup;
 			children = (
 				766FD36A4EF6622F60D20813 /* LocationManager.swift */,
+				F0EA020D911A6DD59210884A /* LocationPreferenceStore.swift */,
 				CC3AFDC6D7F5F011BEA834A3 /* OutfitAdvisor.swift */,
 				24672D02697F8B29EC456943 /* WeatherService.swift */,
 			);
@@ -271,9 +277,11 @@
 				21B6E5C77065276380A26AA3 /* DayPlanViewModel.swift in Sources */,
 				FB0A5F6483677520A5C51827 /* ErrorStateView.swift in Sources */,
 				5A56C478FEE7A3690B66BE0D /* LocationManager.swift in Sources */,
+				2EBD6CC8E9D5F72A35448C5A /* LocationPreferenceStore.swift in Sources */,
 				4CD84E0DA6A8FDFD100F3ECA /* OutfitAdvisor.swift in Sources */,
 				71746EF95C5E6C245D5275FB /* OutfitRecommendation.swift in Sources */,
 				C00CE4CC22E3E5486290E57E /* PlanSnapshot.swift in Sources */,
+				C460295727650884E9719E67 /* SettingsView.swift in Sources */,
 				EE1551AF0039F4132FC06101 /* SkeletonLoadingView.swift in Sources */,
 				4C95FA8113365C9F3D2133DF /* WearTodayApp.swift in Sources */,
 				F13D88994BEAC60771E91CF3 /* WeatherService.swift in Sources */,

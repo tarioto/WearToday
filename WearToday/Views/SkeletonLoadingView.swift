@@ -4,7 +4,7 @@ struct SkeletonLoadingView: View {
     @State private var shimmerPhase: CGFloat = -0.5
 
     var body: some View {
-        DayPlanView(weather: .placeholder, recommendation: .placeholder, onRefresh: {})
+        DayPlanView(weather: .placeholder, recommendation: .placeholder)
             .redacted(reason: .placeholder)
             .disabled(true)
             .modifier(ShimmerMask(phase: shimmerPhase))
