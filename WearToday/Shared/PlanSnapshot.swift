@@ -17,6 +17,7 @@ extension PlanSnapshot {
 enum SharedStore {
     static let appGroupID = "group.com.timarioto.WearToday"
     private static let snapshotKey = "latestPlanSnapshot"
+    private static let temperatureUnitKey = "temperatureUnit"
 
     static func save(_ snapshot: PlanSnapshot) {
         guard let defaults = UserDefaults(suiteName: appGroupID) else { return }
@@ -28,5 +29,19 @@ enum SharedStore {
         guard let defaults = UserDefaults(suiteName: appGroupID) else { return nil }
         guard let data = defaults.data(forKey: snapshotKey) else { return nil }
         return try? JSONDecoder().decode(PlanSnapshot.self, from: data)
+    }
+
+    static func saveTemperatureUnit(_ unit: TemperatureUnit) {
+        guard let defaults = UserDefaults(suiteName: appGroupID) else { return }
+        defaults.set(unit.rawValue, forKey: temperatureUnitKey)
+    }
+
+    static func loadTemperatureUnit() -> TemperatureUnit {
+        guard let defaults = UserDefaults(suiteName: appGroupID),
+              let raw = defaults.string(forKey: temperatureUnitKey),
+              let unit = TemperatureUnit(rawValue: raw) else {
+            return .fahrenheit
+        }
+        return unit
     }
 }

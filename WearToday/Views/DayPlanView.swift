@@ -3,6 +3,7 @@ import SwiftUI
 struct DayPlanView: View {
     let weather: DailyWeather
     let recommendation: OutfitRecommendation
+    @EnvironmentObject private var temperaturePreference: TemperaturePreferenceStore
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -43,7 +44,7 @@ struct DayPlanView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(weather.conditionDescription)
                     .font(.title2.bold())
-                Text("H:\(Int(weather.highTemperatureF.rounded()))° L:\(Int(weather.lowTemperatureF.rounded()))°  •  \(weather.precipitationProbability)% rain  •  UV \(Int(weather.uvIndex.rounded()))")
+                Text("H:\(temperaturePreference.unit.displayString(fromFahrenheit: weather.highTemperatureF)) L:\(temperaturePreference.unit.displayString(fromFahrenheit: weather.lowTemperatureF))  •  \(weather.precipitationProbability)% rain  •  UV \(Int(weather.uvIndex.rounded()))")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

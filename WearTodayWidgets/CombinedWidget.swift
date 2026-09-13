@@ -48,7 +48,8 @@ struct CombinedWidgetEntryView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(snapshot.weather.conditionDescription)
                     .font(.headline)
-                Text("H:\(Int(snapshot.weather.highTemperatureF.rounded()))° L:\(Int(snapshot.weather.lowTemperatureF.rounded()))°")
+                let unit = SharedStore.loadTemperatureUnit()
+                Text("H:\(unit.displayString(fromFahrenheit: snapshot.weather.highTemperatureF)) L:\(unit.displayString(fromFahrenheit: snapshot.weather.lowTemperatureF))")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

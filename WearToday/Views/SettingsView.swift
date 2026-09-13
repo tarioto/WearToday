@@ -3,6 +3,7 @@ import CoreLocation
 
 struct SettingsView: View {
     @ObservedObject var preference: LocationPreferenceStore
+    @ObservedObject var temperaturePreference: TemperaturePreferenceStore
     @Environment(\.dismiss) private var dismiss
 
     @State private var searchText = ""
@@ -64,6 +65,16 @@ struct SettingsView: View {
                 } footer: {
                     Text("Search for a city to see its weather instead of your current location.")
                 }
+
+                Section("Temperature Unit") {
+                    Picker("Temperature Unit", selection: $temperaturePreference.unit) {
+                        ForEach(TemperatureUnit.allCases) { unit in
+                            Text(unit.label).tag(unit)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                }
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
@@ -109,5 +120,5 @@ private enum GeocodeError: Error {
 }
 
 #Preview {
-    SettingsView(preference: LocationPreferenceStore())
+    SettingsView(preference: LocationPreferenceStore(), temperaturePreference: TemperaturePreferenceStore())
 }

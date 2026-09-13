@@ -38,4 +38,5 @@ private struct ShimmerMask: ViewModifier, Animatable {
 #Preview {
     SkeletonLoadingView()
         .padding()
+        .environmentObject(TemperaturePreferenceStore())
 }
