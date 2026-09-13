@@ -12,14 +12,20 @@ struct ContentView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        VStack(spacing: 0) {
+            Text("WearToday")
+                .font(.largeTitle.bold())
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+                .padding(.top, 12)
+                .padding(.bottom, 8)
+
             ScrollView {
                 content
                     .padding()
             }
-            .navigationTitle("WearToday")
-            .background(Color(.systemGroupedBackground))
         }
+        .background(Color(.systemGroupedBackground))
         .onAppear { viewModel.start() }
         .onReceive(locationManager.$coordinate) { newValue in
             viewModel.handleLocationUpdate(newValue, errorMessage: locationManager.errorMessage)
