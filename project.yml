@@ -9,6 +9,10 @@ settings:
     SWIFT_VERSION: "6.0"
     MARKETING_VERSION: "1.0"
     CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Manual
+    DEVELOPMENT_TEAM: TYXC29FT67
+    CODE_SIGN_IDENTITY: Apple Development
+    "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": Apple Development
 targets:
   WearToday:
     type: application
@@ -16,6 +20,9 @@ targets:
     deploymentTarget: "26.0"
     sources:
       - path: WearToday
+    dependencies:
+      - target: WearTodayWidgetsExtension
+        embed: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.timarioto.WearToday
@@ -27,3 +34,20 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGN_ENTITLEMENTS: WearToday/WearToday.entitlements
+        PROVISIONING_PROFILE_SPECIFIER: "iOS Team Provisioning Profile: com.timarioto.WearToday"
+  WearTodayWidgetsExtension:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: WearTodayWidgets
+      - path: WearToday/Models
+      - path: WearToday/Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.timarioto.WearToday.WearTodayWidgets
+        INFOPLIST_FILE: WearTodayWidgets/Info.plist
+        CODE_SIGN_ENTITLEMENTS: WearTodayWidgets/WearTodayWidgets.entitlements
+        SKIP_INSTALL: YES
+        PROVISIONING_PROFILE_SPECIFIER: "iOS Team Provisioning Profile: com.timarioto.WearToday.WearTodayWidgets"

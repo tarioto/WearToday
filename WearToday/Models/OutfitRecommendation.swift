@@ -1,7 +1,7 @@
 import FoundationModels
 
 @Generable
-struct OutfitRecommendation {
+struct OutfitRecommendation: Codable {
     @Guide(description: "A warm, conversational 1-2 sentence summary of what to wear and bring today, based on the weather")
     var summary: String
 
@@ -10,7 +10,7 @@ struct OutfitRecommendation {
 }
 
 @Generable
-struct RecommendedItem {
+struct RecommendedItem: Codable {
     @Guide(description: "A single emoji character that best represents this item, e.g. 🕶️ for sunglasses, ☂️ for an umbrella")
     var emoji: String
 

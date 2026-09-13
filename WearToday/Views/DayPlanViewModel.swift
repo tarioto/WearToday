@@ -1,5 +1,6 @@
 import CoreLocation
 import Combine
+import WidgetKit
 
 enum LoadState {
     case idle
@@ -51,6 +52,8 @@ final class DayPlanViewModel: ObservableObject {
             state = .loadingRecommendation
             let recommendation = try await outfitAdvisor.recommendation(for: weather)
             state = .loaded(weather: weather, recommendation: recommendation)
+            SharedStore.save(PlanSnapshot(weather: weather, recommendation: recommendation, generatedAt: .now))
+            WidgetCenter.shared.reloadAllTimelines()
         } catch {
             state = .failed(error.localizedDescription)
         }

@@ -1,6 +1,6 @@
 import Foundation
 
-struct DailyWeather: Sendable {
+struct DailyWeather: Sendable, Codable {
     let date: Date
     let highTemperatureF: Double
     let lowTemperatureF: Double
