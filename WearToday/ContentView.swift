@@ -5,6 +5,7 @@ struct ContentView: View {
     @StateObject private var locationManager = LocationManager()
     @StateObject private var locationPreference = LocationPreferenceStore()
     @StateObject private var temperaturePreference = TemperaturePreferenceStore()
+    @StateObject private var cardPreference = CardPreferenceStore()
     @StateObject private var viewModel: DayPlanViewModel
     @State private var showingSettings = false
 
@@ -61,9 +62,14 @@ struct ContentView: View {
         }
         .background(Color(.systemGroupedBackground))
         .environmentObject(temperaturePreference)
+        .environmentObject(cardPreference)
         .onAppear { viewModel.start() }
         .sheet(isPresented: $showingSettings) {
-            SettingsView(preference: locationPreference, temperaturePreference: temperaturePreference)
+            SettingsView(
+                preference: locationPreference,
+                temperaturePreference: temperaturePreference,
+                cardPreference: cardPreference
+            )
         }
     }
 

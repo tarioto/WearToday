@@ -5,42 +5,29 @@ struct DayPlanView: View {
     let recommendation: OutfitRecommendation
     var hourly: HourlyForecast? = nil
     @EnvironmentObject private var temperaturePreference: TemperaturePreferenceStore
+    @EnvironmentObject private var cardPreference: CardPreferenceStore
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            weatherHeader
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Today's plan")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                Divider()
-                Text(recommendation.summary)
-                    .font(.body)
-                    .foregroundStyle(.secondary)
+            ForEach(cardPreference.visibleOrderedTypes) { type in
+                card(for: type)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding()
-            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
-
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Wear & bring")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                Divider()
-
-                VStack(spacing: 12) {
-                    ForEach(Array(recommendation.items.enumerated()), id: \.offset) { _, item in
-                        ItemRow(item: item)
-                    }
-                }
-            }
-            .padding()
-            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
         }
     }
 
-    private var weatherHeader: some View {
+    @ViewBuilder
+    private func card(for type: CardType) -> some View {
+        switch type {
+        case .weather:
+            weatherCard
+        case .plan:
+            planCard
+        case .wearAndBring:
+            wearAndBringCard
+        }
+    }
+
+    private var weatherCard: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
@@ -58,6 +45,38 @@ struct DayPlanView: View {
 
             if let hourly {
                 HourlyTemperatureChart(hourly: hourly)
+            }
+        }
+        .padding()
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
+    }
+
+    private var planCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Today's plan")
+                .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .center)
+            Divider()
+            Text(recommendation.summary)
+                .font(.body)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
+    }
+
+    private var wearAndBringCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Wear & bring")
+                .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .center)
+            Divider()
+
+            VStack(spacing: 12) {
+                ForEach(Array(recommendation.items.enumerated()), id: \.offset) { _, item in
+                    ItemRow(item: item)
+                }
             }
         }
         .padding()

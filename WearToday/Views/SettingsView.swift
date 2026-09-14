@@ -4,6 +4,7 @@ import CoreLocation
 struct SettingsView: View {
     @ObservedObject var preference: LocationPreferenceStore
     @ObservedObject var temperaturePreference: TemperaturePreferenceStore
+    @ObservedObject var cardPreference: CardPreferenceStore
     @Environment(\.dismiss) private var dismiss
 
     @State private var searchText = ""
@@ -75,6 +76,16 @@ struct SettingsView: View {
                     .pickerStyle(.segmented)
                     .labelsHidden()
                 }
+
+                Section {
+                    NavigationLink {
+                        CardOrderingView(cardPreference: cardPreference)
+                    } label: {
+                        Label("Home Screen Cards", systemImage: "rectangle.stack")
+                    }
+                } footer: {
+                    Text("Reorder or hide the cards shown on the home screen.")
+                }
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
@@ -120,5 +131,9 @@ private enum GeocodeError: Error {
 }
 
 #Preview {
-    SettingsView(preference: LocationPreferenceStore(), temperaturePreference: TemperaturePreferenceStore())
+    SettingsView(
+        preference: LocationPreferenceStore(),
+        temperaturePreference: TemperaturePreferenceStore(),
+        cardPreference: CardPreferenceStore()
+    )
 }

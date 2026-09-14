@@ -15,9 +15,11 @@
 		1FAF12D18499270FFE1AAC38 /* WearTodayWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3396C43EAC2CAFDEAB5564A4 /* WearTodayWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		21B6E5C77065276380A26AA3 /* DayPlanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B1517DD78F053F63F34980 /* DayPlanViewModel.swift */; };
 		2EBD6CC8E9D5F72A35448C5A /* LocationPreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EA020D911A6DD59210884A /* LocationPreferenceStore.swift */; };
+		32D0E2EC13010DCA8E3C5BC7 /* CardPreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7E6C135E0C43BEE4F7509CF /* CardPreferenceStore.swift */; };
 		3C46FB74106CFB4A51BC8209 /* TemperaturePreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3376BCC0ECC9671483CBB4AB /* TemperaturePreferenceStore.swift */; };
 		44558A42FCCEBEBB24BE1E31 /* PlanSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7646D4FAF10CF78590280CBC /* PlanSnapshot.swift */; };
 		45DD1C65589334462E6BAA6D /* DayPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9897E92C7EBBB3F74BADE131 /* DayPlanView.swift */; };
+		4B49F096D76CF6EF7923FCD9 /* CardOrderingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62AA0B662494142D3221AAD /* CardOrderingView.swift */; };
 		4C95FA8113365C9F3D2133DF /* WearTodayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A30CA575A511C4C1CF62D34 /* WearTodayApp.swift */; };
 		4CD84E0DA6A8FDFD100F3ECA /* OutfitAdvisor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3AFDC6D7F5F011BEA834A3 /* OutfitAdvisor.swift */; };
 		4EC39EB1E93B97943EF9BE42 /* TemperatureUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9A9E1A4D61B7B3B7EF6C56F /* TemperatureUnit.swift */; };
@@ -30,6 +32,7 @@
 		9AEFAA0DF4A742CC52FCBD81 /* DescriptionWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A258C5E694ECF9974C23B78 /* DescriptionWidget.swift */; };
 		B0652AE2E2082131240744B8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A5D1871054C86610DB402A4 /* Assets.xcassets */; };
 		B5DB48D1FADC0440AA8BCFC3 /* DailyWeather.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25B71CD96597F7F92E2FC5F9 /* DailyWeather.swift */; };
+		BE9CDFD4C712A2FAEE57F690 /* CardType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C46BAAB114507EE0CB8EA4 /* CardType.swift */; };
 		C00CE4CC22E3E5486290E57E /* PlanSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7646D4FAF10CF78590280CBC /* PlanSnapshot.swift */; };
 		C0BACC191A8962CFB131D463 /* TemperatureUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9A9E1A4D61B7B3B7EF6C56F /* TemperatureUnit.swift */; };
 		C460295727650884E9719E67 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E9F0729A3D8439D7109066 /* SettingsView.swift */; };
@@ -66,6 +69,7 @@
 /* Begin PBXFileReference section */
 		01E9F0729A3D8439D7109066 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		06B1517DD78F053F63F34980 /* DayPlanViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPlanViewModel.swift; sourceTree = "<group>"; };
+		08C46BAAB114507EE0CB8EA4 /* CardType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardType.swift; sourceTree = "<group>"; };
 		0CD3F81CD728DCC212727CB9 /* ErrorStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorStateView.swift; sourceTree = "<group>"; };
 		1A258C5E694ECF9974C23B78 /* DescriptionWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DescriptionWidget.swift; sourceTree = "<group>"; };
 		20B39CB6C6099B13C3F24892 /* EmptyPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyPlanView.swift; sourceTree = "<group>"; };
@@ -91,6 +95,8 @@
 		C177C1C50376FA82FA6820A0 /* SkeletonLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonLoadingView.swift; sourceTree = "<group>"; };
 		C9A9E1A4D61B7B3B7EF6C56F /* TemperatureUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureUnit.swift; sourceTree = "<group>"; };
 		CC3AFDC6D7F5F011BEA834A3 /* OutfitAdvisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitAdvisor.swift; sourceTree = "<group>"; };
+		D62AA0B662494142D3221AAD /* CardOrderingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardOrderingView.swift; sourceTree = "<group>"; };
+		D7E6C135E0C43BEE4F7509CF /* CardPreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPreferenceStore.swift; sourceTree = "<group>"; };
 		E3B3B0F1E063EF818C37D9B3 /* EmojiWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiWidget.swift; sourceTree = "<group>"; };
 		E802ED00298CD2697D0C9FDC /* HourlyTemperatureChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HourlyTemperatureChart.swift; sourceTree = "<group>"; };
 		F0EA020D911A6DD59210884A /* LocationPreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPreferenceStore.swift; sourceTree = "<group>"; };
@@ -142,6 +148,7 @@
 		7F5B64A5519BE88E1D4D2C43 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				D62AA0B662494142D3221AAD /* CardOrderingView.swift */,
 				9897E92C7EBBB3F74BADE131 /* DayPlanView.swift */,
 				06B1517DD78F053F63F34980 /* DayPlanViewModel.swift */,
 				0CD3F81CD728DCC212727CB9 /* ErrorStateView.swift */,
@@ -170,6 +177,8 @@
 		A9A62BCD7EF5019939353A34 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				D7E6C135E0C43BEE4F7509CF /* CardPreferenceStore.swift */,
+				08C46BAAB114507EE0CB8EA4 /* CardType.swift */,
 				791E96001E2D6AC475EB2EE7 /* HourlyForecastService.swift */,
 				766FD36A4EF6622F60D20813 /* LocationManager.swift */,
 				F0EA020D911A6DD59210884A /* LocationPreferenceStore.swift */,
@@ -284,6 +293,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B49F096D76CF6EF7923FCD9 /* CardOrderingView.swift in Sources */,
+				32D0E2EC13010DCA8E3C5BC7 /* CardPreferenceStore.swift in Sources */,
+				BE9CDFD4C712A2FAEE57F690 /* CardType.swift in Sources */,
 				0042C63B9B9A62046E4D8E45 /* ContentView.swift in Sources */,
 				B5DB48D1FADC0440AA8BCFC3 /* DailyWeather.swift in Sources */,
 				45DD1C65589334462E6BAA6D /* DayPlanView.swift in Sources */,

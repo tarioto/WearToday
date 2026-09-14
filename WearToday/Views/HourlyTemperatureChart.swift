@@ -12,7 +12,7 @@ struct HourlyTemperatureChart: View {
     }
 
     private var tickLabels: [String] {
-        stride(from: 0, to: hourly.points.count, by: 4).map { hourly.points[$0].hourLabel }
+        stride(from: 0, to: hourly.points.count, by: 6).map { hourly.points[$0].hourLabel }
     }
 
     /// The full plotted range, shared by both the temperature line and the rain bars
@@ -103,6 +103,7 @@ struct HourlyTemperatureChart: View {
                 AxisMarks(values: tickLabels) { _ in
                     AxisGridLine()
                     AxisValueLabel()
+                        .font(.system(size: 9))
                 }
             }
             .chartYAxis {
