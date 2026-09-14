@@ -11,10 +11,6 @@ struct HourlyTemperatureChart: View {
         hourly.points.min { abs($0.date.timeIntervalSinceNow) < abs($1.date.timeIntervalSinceNow) }
     }
 
-    private var tickLabels: [String] {
-        stride(from: 0, to: hourly.points.count, by: 6).map { hourly.points[$0].hourLabel }
-    }
-
     /// The full plotted range, shared by both the temperature line and the rain bars
     /// (bars span 0%...100% across this same range, drawn behind the line).
     private var displayedRange: ClosedRange<Double> {
@@ -42,6 +38,16 @@ struct HourlyTemperatureChart: View {
         guard height > 0 else { return "0%" }
         let fraction = (rawValue - range.lowerBound) / height
         return "\(Int((fraction * 100).rounded()))%"
+    }
+
+    /// Exactly 4 evenly-spaced hour labels, rendered manually below the chart.
+    /// (Swift Charts' AxisMarks tick-thinning is unreliable for a categorical/String
+    /// x-axis once a BarMark is present, so we don't rely on it for label text.)
+    private var sampledLabels: [String] {
+        guard !hourly.points.isEmpty else { return [] }
+        let count = hourly.points.count
+        let indices = [0, count / 4, count / 2, (count * 3) / 4]
+        return indices.map { hourly.points[min($0, count - 1)].hourLabel }
     }
 
     var body: some View {
@@ -100,10 +106,8 @@ struct HourlyTemperatureChart: View {
             }
             .chartYScale(domain: displayedRange)
             .chartXAxis {
-                AxisMarks(values: tickLabels) { _ in
+                AxisMarks(values: .automatic) { _ in
                     AxisGridLine()
-                    AxisValueLabel()
-                        .font(.system(size: 9))
                 }
             }
             .chartYAxis {
@@ -125,6 +129,17 @@ struct HourlyTemperatureChart: View {
                 }
             }
             .frame(height: 110)
+
+            HStack {
+                ForEach(Array(sampledLabels.enumerated()), id: \.offset) { index, label in
+                    Text(label)
+                        .font(.system(size: 9))
+                        .foregroundStyle(.secondary)
+                    if index < sampledLabels.count - 1 {
+                        Spacer()
+                    }
+                }
+            }
 
             Text("Shaded band shows model spread · bars show chance of rain")
                 .font(.caption2)

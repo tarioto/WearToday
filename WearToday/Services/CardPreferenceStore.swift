@@ -7,6 +7,7 @@ final class CardPreferenceStore: ObservableObject {
     }
 
     private static let key = "cardConfiguration"
+    private static let defaultOrder: [CardType] = [.plan, .weather, .wearAndBring]
 
     init() {
         if let data = UserDefaults.standard.data(forKey: Self.key),
@@ -14,7 +15,7 @@ final class CardPreferenceStore: ObservableObject {
            Set(decoded.map(\.type)) == Set(CardType.allCases) {
             cards = decoded
         } else {
-            cards = CardType.allCases.map { CardConfig(type: $0, isVisible: true) }
+            cards = Self.defaultOrder.map { CardConfig(type: $0, isVisible: true) }
         }
     }
 

@@ -5,6 +5,7 @@ struct SettingsView: View {
     @ObservedObject var preference: LocationPreferenceStore
     @ObservedObject var temperaturePreference: TemperaturePreferenceStore
     @ObservedObject var cardPreference: CardPreferenceStore
+    @ObservedObject var themePreference: ThemePreferenceStore
     @Environment(\.dismiss) private var dismiss
 
     @State private var searchText = ""
@@ -78,15 +79,76 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    NavigationLink {
-                        CardOrderingView(cardPreference: cardPreference)
-                    } label: {
-                        Label("Home Screen Cards", systemImage: "rectangle.stack")
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 18) {
+                            ForEach(AppTheme.allCases) { theme in
+                                Button {
+                                    themePreference.theme = theme
+                                } label: {
+                                    VStack(spacing: 6) {
+                                        Circle()
+                                            .fill(theme.swatchGradient)
+                                            .frame(width: 46, height: 46)
+                                            .overlay(
+                                                Circle()
+                                                    .strokeBorder(
+                                                        Color.primary,
+                                                        lineWidth: themePreference.theme == theme ? 3 : 0
+                                                    )
+                                            )
+                                            .overlay {
+                                                if themePreference.theme == theme {
+                                                    Image(systemName: "checkmark")
+                                                        .font(.caption.bold())
+                                                        .foregroundStyle(.white)
+                                                }
+                                            }
+                                        Text(theme.label)
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.vertical, 6)
                     }
+
+                    Picker("Appearance", selection: $themePreference.appearance) {
+                        ForEach(AppAppearance.allCases) { appearance in
+                            Text(appearance.label).tag(appearance)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                } header: {
+                    Text("Theme")
                 } footer: {
-                    Text("Reorder or hide the cards shown on the home screen.")
+                    Text("The color is used for the home screen background. Appearance controls Light/Dark mode independently.")
+                }
+
+                Section {
+                    ForEach($cardPreference.cards) { $config in
+                        HStack {
+                            Image(systemName: config.type.icon)
+                                .foregroundStyle(.secondary)
+                                .frame(width: 24)
+                            Text(config.type.title)
+                            Spacer()
+                            Toggle("", isOn: $config.isVisible)
+                                .labelsHidden()
+                        }
+                    }
+                    .onMove { indices, newOffset in
+                        cardPreference.cards.move(fromOffsets: indices, toOffset: newOffset)
+                    }
+                } header: {
+                    Text("Home Screen Cards")
+                } footer: {
+                    Text("Drag to reorder. Turn off a card to hide it from the home screen.")
                 }
             }
+            .environment(\.editMode, .constant(.active))
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -134,6 +196,7 @@ private enum GeocodeError: Error {
     SettingsView(
         preference: LocationPreferenceStore(),
         temperaturePreference: TemperaturePreferenceStore(),
-        cardPreference: CardPreferenceStore()
+        cardPreference: CardPreferenceStore(),
+        themePreference: ThemePreferenceStore()
     )
 }

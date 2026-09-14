@@ -6,6 +6,7 @@ struct ContentView: View {
     @StateObject private var locationPreference = LocationPreferenceStore()
     @StateObject private var temperaturePreference = TemperaturePreferenceStore()
     @StateObject private var cardPreference = CardPreferenceStore()
+    @StateObject private var themePreference = ThemePreferenceStore()
     @StateObject private var viewModel: DayPlanViewModel
     @State private var showingSettings = false
 
@@ -60,16 +61,29 @@ struct ContentView: View {
                 await viewModel.refresh()
             }
         }
-        .background(Color(.systemGroupedBackground))
+        .background(themeBackground)
         .environmentObject(temperaturePreference)
         .environmentObject(cardPreference)
+        .tint(themePreference.theme.accentColor)
+        .preferredColorScheme(themePreference.appearance.colorScheme)
         .onAppear { viewModel.start() }
         .sheet(isPresented: $showingSettings) {
             SettingsView(
                 preference: locationPreference,
                 temperaturePreference: temperaturePreference,
-                cardPreference: cardPreference
+                cardPreference: cardPreference,
+                themePreference: themePreference
             )
+        }
+    }
+
+    @ViewBuilder
+    private var themeBackground: some View {
+        if let colors = themePreference.theme.gradientColors {
+            LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+                .ignoresSafeArea()
+        } else {
+            Color(.systemGroupedBackground)
         }
     }
 

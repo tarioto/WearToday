@@ -29,6 +29,11 @@ struct DayPlanView: View {
 
     private var weatherCard: some View {
         VStack(alignment: .leading, spacing: 16) {
+            Text("Weather")
+                .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .center)
+            Divider()
+
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(weather.conditionDescription)

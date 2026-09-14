@@ -10,8 +10,8 @@ enum CardType: String, Codable, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .weather: return "Weather"
-        case .plan: return "Today's Plan"
-        case .wearAndBring: return "Wear & Bring"
+        case .plan: return "Today's plan"
+        case .wearAndBring: return "Wear & bring"
         }
     }
 
