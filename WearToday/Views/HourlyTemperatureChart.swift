@@ -54,7 +54,7 @@ struct HourlyTemperatureChart: View {
                         yEnd: .value("Rain", precipitationBarValue(point.precipitationProbability)),
                         width: .ratio(0.6)
                     )
-                    .foregroundStyle(.blue.opacity(0.35))
+                    .foregroundStyle(.blue.opacity(0.18))
                     .cornerRadius(2)
 
                     AreaMark(
