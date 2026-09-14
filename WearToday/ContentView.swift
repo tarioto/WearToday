@@ -81,8 +81,8 @@ struct ContentView: View {
         switch viewModel.state {
         case .idle, .loadingWeather, .loadingRecommendation:
             SkeletonLoadingView()
-        case .loaded(let weather, let recommendation):
-            DayPlanView(weather: weather, recommendation: recommendation)
+        case .loaded(let weather, let recommendation, let hourly):
+            DayPlanView(weather: weather, recommendation: recommendation, hourly: hourly)
         case .failed(let message):
             ErrorStateView(message: message) {
                 viewModel.retry()

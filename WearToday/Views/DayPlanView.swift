@@ -3,6 +3,7 @@ import SwiftUI
 struct DayPlanView: View {
     let weather: DailyWeather
     let recommendation: OutfitRecommendation
+    var hourly: HourlyForecast? = nil
     @EnvironmentObject private var temperaturePreference: TemperaturePreferenceStore
 
     var body: some View {
@@ -40,18 +41,24 @@ struct DayPlanView: View {
     }
 
     private var weatherHeader: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(weather.conditionDescription)
-                    .font(.title2.bold())
-                Text("H:\(temperaturePreference.unit.displayString(fromFahrenheit: weather.highTemperatureF)) L:\(temperaturePreference.unit.displayString(fromFahrenheit: weather.lowTemperatureF))  •  \(weather.precipitationProbability)% rain  •  UV \(Int(weather.uvIndex.rounded()))")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(weather.conditionDescription)
+                        .font(.title2.bold())
+                    Text("H:\(temperaturePreference.unit.displayString(fromFahrenheit: weather.highTemperatureF)) L:\(temperaturePreference.unit.displayString(fromFahrenheit: weather.lowTemperatureF))  •  \(weather.precipitationProbability)% rain  •  UV \(Int(weather.uvIndex.rounded()))")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: WMOWeatherCode.symbolName(for: weather.conditionCode))
+                    .font(.system(size: 44))
+                    .symbolRenderingMode(.multicolor)
             }
-            Spacer()
-            Image(systemName: WMOWeatherCode.symbolName(for: weather.conditionCode))
-                .font(.system(size: 44))
-                .symbolRenderingMode(.multicolor)
+
+            if let hourly {
+                HourlyTemperatureChart(hourly: hourly)
+            }
         }
         .padding()
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))

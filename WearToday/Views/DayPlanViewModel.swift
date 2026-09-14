@@ -6,7 +6,7 @@ enum LoadState {
     case idle
     case loadingWeather
     case loadingRecommendation
-    case loaded(weather: DailyWeather, recommendation: OutfitRecommendation)
+    case loaded(weather: DailyWeather, recommendation: OutfitRecommendation, hourly: HourlyForecast?)
     case failed(String)
 }
 
@@ -17,6 +17,7 @@ final class DayPlanViewModel: ObservableObject {
     private let locationManager: LocationManager
     private let locationPreference: LocationPreferenceStore
     private let weatherService = WeatherService()
+    private let hourlyForecastService = HourlyForecastService()
     private let outfitAdvisor = OutfitAdvisor()
     private var hasStarted = false
     private var lastCoordinate: CLLocationCoordinate2D?
@@ -104,10 +105,12 @@ final class DayPlanViewModel: ObservableObject {
     private func loadPlan(for coordinate: CLLocationCoordinate2D) async {
         state = .loadingWeather
         do {
+            async let hourlyTask: HourlyForecast? = try? hourlyForecastService.fetchHourlyForecast(for: coordinate)
             let weather = try await weatherService.fetchTodayForecast(for: coordinate)
             state = .loadingRecommendation
             let recommendation = try await outfitAdvisor.recommendation(for: weather)
-            state = .loaded(weather: weather, recommendation: recommendation)
+            let hourly = await hourlyTask
+            state = .loaded(weather: weather, recommendation: recommendation, hourly: hourly)
             lastCoordinate = coordinate
             SharedStore.save(PlanSnapshot(weather: weather, recommendation: recommendation, generatedAt: .now))
             WidgetCenter.shared.reloadAllTimelines()

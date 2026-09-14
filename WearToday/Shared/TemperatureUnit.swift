@@ -24,7 +24,7 @@ enum TemperatureUnit: String, Codable, CaseIterable, Identifiable {
         "\(Int(convert(fromFahrenheit: value).rounded()))°"
     }
 
-    private func convert(fromFahrenheit value: Double) -> Double {
+    func convert(fromFahrenheit value: Double) -> Double {
         switch self {
         case .fahrenheit: return value
         case .celsius: return (value - 32) * 5 / 9
