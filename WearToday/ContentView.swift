@@ -23,6 +23,19 @@ struct ContentView: View {
                     .font(.largeTitle.bold())
                 Spacer()
                 Button {
+                    Task { await viewModel.refresh() }
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.title2)
+                        .foregroundStyle(.primary)
+                        .frame(width: 32, height: 32)
+                }
+                .buttonStyle(.glass)
+                .buttonBorderShape(.circle)
+                .disabled(isRefreshing)
+                .accessibilityLabel("Refresh")
+
+                Button {
                     showingSettings = true
                 } label: {
                     Image(systemName: "gearshape.fill")
@@ -31,6 +44,7 @@ struct ContentView: View {
                         .frame(width: 32, height: 32)
                 }
                 .buttonStyle(.glass)
+                .buttonBorderShape(.circle)
                 .accessibilityLabel("Settings")
             }
             .padding(.horizontal)
@@ -50,6 +64,15 @@ struct ContentView: View {
         .onAppear { viewModel.start() }
         .sheet(isPresented: $showingSettings) {
             SettingsView(preference: locationPreference, temperaturePreference: temperaturePreference)
+        }
+    }
+
+    private var isRefreshing: Bool {
+        switch viewModel.state {
+        case .loadingWeather, .loadingRecommendation:
+            return true
+        case .idle, .loaded, .failed:
+            return false
         }
     }
 
