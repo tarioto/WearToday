@@ -58,3 +58,7 @@ project.yml        XcodeGen spec
 ## Credits
 
 Weather data by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0).
+
+## License
+
+MIT — see [LICENSE](LICENSE).
