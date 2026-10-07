@@ -8,6 +8,9 @@ final class LocationManager: NSObject, ObservableObject {
     @Published var errorMessage: String?
 
     private let manager = CLLocationManager()
+    private var unknownLocationRetries = 0
+    private static let maxUnknownLocationRetries = 2
+    private static let deniedMessage = "Location access is off. Enable it in Settings to get weather for your area."
 
     override init() {
         authorizationStatus = manager.authorizationStatus
@@ -18,13 +21,14 @@ final class LocationManager: NSObject, ObservableObject {
 
     func requestLocation() {
         errorMessage = nil
+        unknownLocationRetries = 0
         switch manager.authorizationStatus {
         case .notDetermined:
             manager.requestWhenInUseAuthorization()
         case .authorizedWhenInUse, .authorizedAlways:
             manager.requestLocation()
         case .denied, .restricted:
-            errorMessage = "Location access is off. Enable it in Settings to get weather for your area."
+            errorMessage = Self.deniedMessage
         @unknown default:
             break
         }
@@ -40,7 +44,7 @@ extension LocationManager: CLLocationManagerDelegate {
             if status == .authorizedWhenInUse || status == .authorizedAlways {
                 self.manager.requestLocation()
             } else if status == .denied || status == .restricted {
-                errorMessage = "Location access is off. Enable it in Settings to get weather for your area."
+                errorMessage = Self.deniedMessage
             }
         }
     }
@@ -53,9 +57,32 @@ extension LocationManager: CLLocationManagerDelegate {
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        let description = error.localizedDescription
+        let code = (error as? CLError)?.code
         Task { @MainActor in
-            errorMessage = description
+            handleFailure(code: code)
+        }
+    }
+}
+
+private extension LocationManager {
+    func handleFailure(code: CLError.Code?) {
+        // locationUnknown is usually transient (no fix yet), so try again before giving up.
+        if code == .locationUnknown, unknownLocationRetries < Self.maxUnknownLocationRetries {
+            unknownLocationRetries += 1
+            Task {
+                try? await Task.sleep(for: .seconds(2))
+                manager.requestLocation()
+            }
+            return
+        }
+
+        switch code {
+        case .denied:
+            errorMessage = Self.deniedMessage
+        case .network:
+            errorMessage = "Couldn't determine your location. Check your connection and try again."
+        default:
+            errorMessage = "Couldn't find your location right now. Try again, or set a location in Settings."
         }
     }
 }
