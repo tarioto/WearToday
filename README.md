@@ -43,6 +43,15 @@ Signing is configured for the original author's team. To run on your own device,
 - `PROVISIONING_PROFILE_SPECIFIER` for both targets (or switch `CODE_SIGN_STYLE` to `Automatic` and remove them)
 - The App Group `group.com.timarioto.WearToday` in both `.entitlements` files — the app and widget extension share forecast data through it
 
+### Secret scanning
+
+Pushes and PRs are scanned for secrets with [gitleaks](https://github.com/gitleaks/gitleaks) in CI, and GitHub push protection rejects known token formats. To also catch secrets before they leave your machine, enable the local pre-push hook:
+
+```sh
+brew install gitleaks
+git config core.hooksPath .githooks
+```
+
 ## Project structure
 
 ```
