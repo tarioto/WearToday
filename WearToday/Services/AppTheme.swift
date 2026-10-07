@@ -20,11 +20,14 @@ enum AppTheme: String, Codable, CaseIterable, Identifiable {
         }
     }
 
-    /// nil means "use the plain system-grouped background" (no gradient theme).
-    var gradientColors: [Color]? {
+    var gradientColors: [Color] {
         switch self {
         case .none:
-            return nil
+            // A subtle system-gray fade that adapts to Light/Dark Mode.
+            return [
+                Color(.systemGroupedBackground),
+                Color(.systemGray5)
+            ]
         case .sunset:
             return [
                 Color(red: 1.00, green: 0.60, blue: 0.35),
@@ -63,7 +66,7 @@ enum AppTheme: String, Codable, CaseIterable, Identifiable {
     }
 
     var swatchGradient: LinearGradient {
-        let colors = gradientColors ?? [Color(.systemGray4), Color(.systemGray2)]
+        let colors = self == .none ? [Color(.systemGray4), Color(.systemGray2)] : gradientColors
         return LinearGradient(colors: colors, startPoint: .top, endPoint: .bottom)
     }
 }

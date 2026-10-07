@@ -77,14 +77,9 @@ struct ContentView: View {
         }
     }
 
-    @ViewBuilder
     private var themeBackground: some View {
-        if let colors = themePreference.theme.gradientColors {
-            LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
-                .ignoresSafeArea()
-        } else {
-            Color(.systemGroupedBackground)
-        }
+        LinearGradient(colors: themePreference.theme.gradientColors, startPoint: .topLeading, endPoint: .bottomTrailing)
+            .ignoresSafeArea()
     }
 
     private var isRefreshing: Bool {
