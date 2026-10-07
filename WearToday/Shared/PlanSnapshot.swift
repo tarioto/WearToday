@@ -13,7 +13,7 @@ extension PlanSnapshot {
         weather: .placeholder,
         recommendation: .placeholder,
         generatedAt: .now,
-        provider: .openMeteo
+        provider: .apple
     )
 }
 

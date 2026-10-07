@@ -12,7 +12,7 @@ final class WeatherProviderPreferenceStore: ObservableObject {
         if let raw = UserDefaults.standard.string(forKey: Self.providerKey), let provider = WeatherProvider(rawValue: raw) {
             self.provider = provider
         } else {
-            self.provider = .openMeteo
+            self.provider = .apple
         }
     }
 }
