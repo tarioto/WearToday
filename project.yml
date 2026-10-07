@@ -4,6 +4,7 @@ options:
   deploymentTarget:
     iOS: "26.0"
   createIntermediateGroups: true
+  xcodeVersion: "27.0"
 settings:
   base:
     SWIFT_VERSION: "6.0"
@@ -13,6 +14,8 @@ settings:
     DEVELOPMENT_TEAM: TYXC29FT67
     CODE_SIGN_IDENTITY: Apple Development
     "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": Apple Development
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    STRING_CATALOG_GENERATE_SYMBOLS: YES
 targets:
   WearToday:
     type: application
@@ -35,7 +38,9 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         CODE_SIGN_ENTITLEMENTS: WearToday/WearToday.entitlements
-        PROVISIONING_PROFILE_SPECIFIER: "iOS Team Provisioning Profile: com.timarioto.WearToday"
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: Apple Development
+        PROVISIONING_PROFILE_SPECIFIER: ""
   WearTodayWidgetsExtension:
     type: app-extension
     platform: iOS
