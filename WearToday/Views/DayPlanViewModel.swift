@@ -6,7 +6,7 @@ enum LoadState {
     case idle
     case loadingWeather
     case loadingRecommendation
-    case loaded(weather: DailyWeather, recommendation: OutfitRecommendation, hourly: HourlyForecast?)
+    case loaded(weather: DailyWeather, recommendation: OutfitRecommendation, hourly: HourlyForecast?, provider: WeatherProvider)
     case failed(String)
 }
 
@@ -16,16 +16,19 @@ final class DayPlanViewModel: ObservableObject {
 
     private let locationManager: LocationManager
     private let locationPreference: LocationPreferenceStore
+    private let providerPreference: WeatherProviderPreferenceStore
     private let weatherService = WeatherService()
     private let hourlyForecastService = HourlyForecastService()
+    private let appleWeatherService = AppleWeatherService()
     private let outfitAdvisor = OutfitAdvisor()
     private var hasStarted = false
     private var lastCoordinate: CLLocationCoordinate2D?
     private var cancellables = Set<AnyCancellable>()
 
-    init(locationManager: LocationManager, locationPreference: LocationPreferenceStore) {
+    init(locationManager: LocationManager, locationPreference: LocationPreferenceStore, providerPreference: WeatherProviderPreferenceStore) {
         self.locationManager = locationManager
         self.locationPreference = locationPreference
+        self.providerPreference = providerPreference
 
         locationManager.$coordinate
             .compactMap { $0 }
@@ -45,6 +48,15 @@ final class DayPlanViewModel: ObservableObject {
             .dropFirst()
             .sink { [weak self] selection in
                 self?.applySelection(selection)
+            }
+            .store(in: &cancellables)
+
+        providerPreference.$provider
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                guard let self, self.hasStarted else { return }
+                Task { await self.refresh() }
             }
             .store(in: &cancellables)
     }
@@ -104,18 +116,30 @@ final class DayPlanViewModel: ObservableObject {
 
     private func loadPlan(for coordinate: CLLocationCoordinate2D) async {
         state = .loadingWeather
+        // Read here (not in the provider sink, which fires before @Published updates).
+        let provider = providerPreference.provider
         do {
-            async let hourlyTask: HourlyForecast? = try? hourlyForecastService.fetchHourlyForecast(for: coordinate)
-            let weather = try await weatherService.fetchTodayForecast(for: coordinate)
+            let (weather, hourly) = try await fetchWeather(for: coordinate, from: provider)
             state = .loadingRecommendation
             let recommendation = try await outfitAdvisor.recommendation(for: weather)
-            let hourly = await hourlyTask
-            state = .loaded(weather: weather, recommendation: recommendation, hourly: hourly)
+            state = .loaded(weather: weather, recommendation: recommendation, hourly: hourly, provider: provider)
             lastCoordinate = coordinate
-            SharedStore.save(PlanSnapshot(weather: weather, recommendation: recommendation, generatedAt: .now))
+            SharedStore.save(PlanSnapshot(weather: weather, recommendation: recommendation, generatedAt: .now, provider: provider))
             WidgetCenter.shared.reloadAllTimelines()
         } catch {
             state = .failed(error.localizedDescription)
+        }
+    }
+
+    private func fetchWeather(for coordinate: CLLocationCoordinate2D, from provider: WeatherProvider) async throws -> (DailyWeather, HourlyForecast?) {
+        switch provider {
+        case .openMeteo:
+            async let hourlyTask: HourlyForecast? = try? hourlyForecastService.fetchHourlyForecast(for: coordinate)
+            let weather = try await weatherService.fetchTodayForecast(for: coordinate)
+            return (weather, await hourlyTask)
+        case .apple:
+            let forecast = try await appleWeatherService.fetchForecast(for: coordinate)
+            return (forecast.daily, forecast.hourly)
         }
     }
 }

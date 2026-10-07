@@ -6,5 +6,7 @@
     <array>
         <string>group.com.timarioto.WearToday</string>
     </array>
+    <key>com.apple.developer.weatherkit</key>
+    <true/>
 </dict>
 </plist>

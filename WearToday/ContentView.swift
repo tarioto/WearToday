@@ -7,6 +7,7 @@ struct ContentView: View {
     @StateObject private var temperaturePreference = TemperaturePreferenceStore()
     @StateObject private var cardPreference = CardPreferenceStore()
     @StateObject private var themePreference = ThemePreferenceStore()
+    @StateObject private var providerPreference: WeatherProviderPreferenceStore
     @StateObject private var viewModel: DayPlanViewModel
     @State private var showingSettings = false
     @Environment(\.colorScheme) private var colorScheme
@@ -14,9 +15,11 @@ struct ContentView: View {
     init() {
         let manager = LocationManager()
         let preference = LocationPreferenceStore()
+        let providerPreference = WeatherProviderPreferenceStore()
         _locationManager = StateObject(wrappedValue: manager)
         _locationPreference = StateObject(wrappedValue: preference)
-        _viewModel = StateObject(wrappedValue: DayPlanViewModel(locationManager: manager, locationPreference: preference))
+        _providerPreference = StateObject(wrappedValue: providerPreference)
+        _viewModel = StateObject(wrappedValue: DayPlanViewModel(locationManager: manager, locationPreference: preference, providerPreference: providerPreference))
     }
 
     var body: some View {
@@ -77,7 +80,8 @@ struct ContentView: View {
                 preference: locationPreference,
                 temperaturePreference: temperaturePreference,
                 cardPreference: cardPreference,
-                themePreference: themePreference
+                themePreference: themePreference,
+                providerPreference: providerPreference
             )
         }
     }
@@ -117,8 +121,8 @@ struct ContentView: View {
         switch viewModel.state {
         case .idle, .loadingWeather, .loadingRecommendation:
             SkeletonLoadingView()
-        case .loaded(let weather, let recommendation, let hourly):
-            DayPlanView(weather: weather, recommendation: recommendation, hourly: hourly)
+        case .loaded(let weather, let recommendation, let hourly, let provider):
+            DayPlanView(weather: weather, recommendation: recommendation, hourly: hourly, provider: provider)
         case .failed(let message):
             ErrorStateView(message: message) {
                 viewModel.retry()
