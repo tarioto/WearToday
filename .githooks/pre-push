@@ -1,0 +1,31 @@
+#!/bin/sh
+# Scan the commits being pushed for secrets with gitleaks.
+# Enable with: git config core.hooksPath .githooks
+# Skip once (only if you're sure): git push --no-verify
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+    echo "pre-push: gitleaks not found. Install it with 'brew install gitleaks', or push with --no-verify to skip." >&2
+    exit 1
+fi
+
+zero=0000000000000000000000000000000000000000
+status=0
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+    # Deleting a remote branch: nothing to scan.
+    [ "$local_sha" = "$zero" ] && continue
+
+    if [ "$remote_sha" = "$zero" ]; then
+        # New branch: scan commits not already on the remote.
+        range="$local_sha --not --remotes"
+    else
+        range="$remote_sha..$local_sha"
+    fi
+
+    if ! gitleaks git --no-banner --redact --log-opts="$range" .; then
+        echo "pre-push: gitleaks found possible secrets in $local_ref. Push blocked." >&2
+        status=1
+    fi
+done
+
+exit $status
