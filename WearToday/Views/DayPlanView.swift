@@ -53,7 +53,7 @@ struct DayPlanView: View {
             }
         }
         .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .cardGlass()
     }
 
     private var planCard: some View {
@@ -68,7 +68,7 @@ struct DayPlanView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .cardGlass()
     }
 
     private var wearAndBringCard: some View {
@@ -85,7 +85,7 @@ struct DayPlanView: View {
             }
         }
         .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .cardGlass()
     }
 }
 
@@ -106,5 +106,11 @@ private struct ItemRow: View {
             }
             Spacer()
         }
+    }
+}
+
+private extension View {
+    func cardGlass() -> some View {
+        glassEffect(in: .rect(cornerRadius: 16))
     }
 }
