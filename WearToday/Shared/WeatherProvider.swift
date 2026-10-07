@@ -1,8 +1,8 @@
 import Foundation
 
 enum WeatherProvider: String, Codable, CaseIterable, Identifiable, Sendable {
-    case openMeteo
     case apple
+    case openMeteo
 
     var id: String { rawValue }
 
