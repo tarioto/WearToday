@@ -9,12 +9,14 @@
 /* Begin PBXBuildFile section */
 		0042C63B9B9A62046E4D8E45 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DF6933B6E8D612B8A83566B /* ContentView.swift */; };
 		00C457DB2336B7FB4363BBF1 /* HourlyForecastService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791E96001E2D6AC475EB2EE7 /* HourlyForecastService.swift */; };
+		051438B5AF8DD5337A44EF77 /* AppIconSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC121DB9D3603C9481D35B79 /* AppIconSwitcher.swift */; };
 		09CCC5023D17EDD6397B177E /* EmptyPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20B39CB6C6099B13C3F24892 /* EmptyPlanView.swift */; };
 		163C42E841944DF349C6DDDA /* OutfitRecommendation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B56C68C387BAA8EA331B45 /* OutfitRecommendation.swift */; };
 		17D969587D08767FF52F298C /* PlanTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CB4A54EF15B6FA4E7C46495 /* PlanTimelineProvider.swift */; };
 		1FAF12D18499270FFE1AAC38 /* WearTodayWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3396C43EAC2CAFDEAB5564A4 /* WearTodayWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		21B6E5C77065276380A26AA3 /* DayPlanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B1517DD78F053F63F34980 /* DayPlanViewModel.swift */; };
 		2B3BCD8FDA4AF9CC176FD5B3 /* WeatherProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9350DFA102E80C7506DFF2F3 /* WeatherProvider.swift */; };
+		2B8E937DA4E8EC4318358912 /* AppIcon-Dev.icon in Resources */ = {isa = PBXBuildFile; fileRef = 3D8B01391182C8ABE33833CC /* AppIcon-Dev.icon */; };
 		2EBD6CC8E9D5F72A35448C5A /* LocationPreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EA020D911A6DD59210884A /* LocationPreferenceStore.swift */; };
 		2FBF7BBCFD5639B4455C67A1 /* WeatherAttributionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F706A2194BB30B324EFBAF71 /* WeatherAttributionView.swift */; };
 		32D0E2EC13010DCA8E3C5BC7 /* CardPreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7E6C135E0C43BEE4F7509CF /* CardPreferenceStore.swift */; };
@@ -28,6 +30,7 @@
 		4EC39EB1E93B97943EF9BE42 /* TemperatureUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9A9E1A4D61B7B3B7EF6C56F /* TemperatureUnit.swift */; };
 		53CD18CC37718C652CADBE00 /* CombinedWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631EC3EC6CD478FF1CE65906 /* CombinedWidget.swift */; };
 		53E01F2AE84A9F6082936AB4 /* WearTodayWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FFAB9FDBCD0CD4AC6EC975F /* WearTodayWidgetsBundle.swift */; };
+		574688A6AD114168B8CB5DCD /* AppIcon-Beta.icon in Resources */ = {isa = PBXBuildFile; fileRef = A2B1EE34C038825DCD7E38BB /* AppIcon-Beta.icon */; };
 		5A56C478FEE7A3690B66BE0D /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766FD36A4EF6622F60D20813 /* LocationManager.swift */; };
 		71746EF95C5E6C245D5275FB /* OutfitRecommendation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B56C68C387BAA8EA331B45 /* OutfitRecommendation.swift */; };
 		8AB386112E706EE5A8455C32 /* DailyWeather.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25B71CD96597F7F92E2FC5F9 /* DailyWeather.swift */; };
@@ -88,6 +91,7 @@
 		2A5D1871054C86610DB402A4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3376BCC0ECC9671483CBB4AB /* TemperaturePreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperaturePreferenceStore.swift; sourceTree = "<group>"; };
 		3396C43EAC2CAFDEAB5564A4 /* WearTodayWidgetsExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = WearTodayWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D8B01391182C8ABE33833CC /* AppIcon-Dev.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = "AppIcon-Dev.icon"; sourceTree = "<group>"; };
 		52D379CCCEA3043947FC6CDA /* WearToday.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WearToday.entitlements; sourceTree = "<group>"; };
 		5CB4A54EF15B6FA4E7C46495 /* PlanTimelineProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanTimelineProvider.swift; sourceTree = "<group>"; };
 		62B56C68C387BAA8EA331B45 /* OutfitRecommendation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitRecommendation.swift; sourceTree = "<group>"; };
@@ -105,10 +109,12 @@
 		9897E92C7EBBB3F74BADE131 /* DayPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPlanView.swift; sourceTree = "<group>"; };
 		9C9F306930E58A547B9E30D4 /* AppleWeatherService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleWeatherService.swift; sourceTree = "<group>"; };
 		9FFAB9FDBCD0CD4AC6EC975F /* WearTodayWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WearTodayWidgetsBundle.swift; sourceTree = "<group>"; };
+		A2B1EE34C038825DCD7E38BB /* AppIcon-Beta.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = "AppIcon-Beta.icon"; sourceTree = "<group>"; };
 		A81E56A8ECD750109919CE39 /* WeatherProviderPreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherProviderPreferenceStore.swift; sourceTree = "<group>"; };
 		B8A7CB9B5D5ACD005D6D0F3D /* WearTodayWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WearTodayWidgets.entitlements; sourceTree = "<group>"; };
 		C177C1C50376FA82FA6820A0 /* SkeletonLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonLoadingView.swift; sourceTree = "<group>"; };
 		C9A9E1A4D61B7B3B7EF6C56F /* TemperatureUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureUnit.swift; sourceTree = "<group>"; };
+		CC121DB9D3603C9481D35B79 /* AppIconSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconSwitcher.swift; sourceTree = "<group>"; };
 		CC3AFDC6D7F5F011BEA834A3 /* OutfitAdvisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitAdvisor.swift; sourceTree = "<group>"; };
 		D7E6C135E0C43BEE4F7509CF /* CardPreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPreferenceStore.swift; sourceTree = "<group>"; };
 		E3B3B0F1E063EF818C37D9B3 /* EmojiWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiWidget.swift; sourceTree = "<group>"; };
@@ -121,6 +127,8 @@
 		24631FFE3F485E4A05F2AFCA /* WearToday */ = {
 			isa = PBXGroup;
 			children = (
+				A2B1EE34C038825DCD7E38BB /* AppIcon-Beta.icon */,
+				3D8B01391182C8ABE33833CC /* AppIcon-Dev.icon */,
 				1FFD7B950DC71BF7238824FC /* AppIcon.icon */,
 				2A5D1871054C86610DB402A4 /* Assets.xcassets */,
 				8DF6933B6E8D612B8A83566B /* ContentView.swift */,
@@ -194,6 +202,7 @@
 		A9A62BCD7EF5019939353A34 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				CC121DB9D3603C9481D35B79 /* AppIconSwitcher.swift */,
 				9C9F306930E58A547B9E30D4 /* AppleWeatherService.swift */,
 				6D72E0664230027C85D9536D /* AppTheme.swift */,
 				D7E6C135E0C43BEE4F7509CF /* CardPreferenceStore.swift */,
@@ -304,6 +313,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				574688A6AD114168B8CB5DCD /* AppIcon-Beta.icon in Resources */,
+				2B8E937DA4E8EC4318358912 /* AppIcon-Dev.icon in Resources */,
 				C4AF318455BC4569077A7B78 /* AppIcon.icon in Resources */,
 				B0652AE2E2082131240744B8 /* Assets.xcassets in Resources */,
 			);
@@ -316,6 +327,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				051438B5AF8DD5337A44EF77 /* AppIconSwitcher.swift in Sources */,
 				A306B8228BB555D05FAECF04 /* AppTheme.swift in Sources */,
 				4D03B1DF6DB26EC7742CEFAE /* AppleWeatherService.swift in Sources */,
 				32D0E2EC13010DCA8E3C5BC7 /* CardPreferenceStore.swift in Sources */,
@@ -449,8 +461,10 @@
 		690D26498AF59DE23A2067B5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon-Beta";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = WearToday/WearToday.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -581,8 +595,10 @@
 		ED3C9D1AF0F631E758EEDEDF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon-Beta";
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-Dev";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = WearToday/WearToday.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
