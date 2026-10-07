@@ -40,7 +40,7 @@ enum SharedStore {
         guard let defaults = UserDefaults(suiteName: appGroupID),
               let raw = defaults.string(forKey: temperatureUnitKey),
               let unit = TemperatureUnit(rawValue: raw) else {
-            return .fahrenheit
+            return .system
         }
         return unit
     }

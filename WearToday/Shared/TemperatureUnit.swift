@@ -1,6 +1,7 @@
 import Foundation
 
 enum TemperatureUnit: String, Codable, CaseIterable, Identifiable {
+    case system
     case fahrenheit
     case celsius
 
@@ -8,16 +9,20 @@ enum TemperatureUnit: String, Codable, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
+        case .system: return "System"
         case .fahrenheit: return "Fahrenheit"
         case .celsius: return "Celsius"
         }
     }
 
     var symbol: String {
-        switch self {
-        case .fahrenheit: return "°F"
-        case .celsius: return "°C"
-        }
+        resolved == .fahrenheit ? "°F" : "°C"
+    }
+
+    /// Follows the device's Settings > General > Language & Region > Temperature Unit when set to `.system`.
+    var resolved: TemperatureUnit {
+        guard self == .system else { return self }
+        return UnitTemperature(forLocale: .autoupdatingCurrent) == .fahrenheit ? .fahrenheit : .celsius
     }
 
     func displayString(fromFahrenheit value: Double) -> String {
@@ -25,9 +30,6 @@ enum TemperatureUnit: String, Codable, CaseIterable, Identifiable {
     }
 
     func convert(fromFahrenheit value: Double) -> Double {
-        switch self {
-        case .fahrenheit: return value
-        case .celsius: return (value - 32) * 5 / 9
-        }
+        resolved == .fahrenheit ? value : (value - 32) * 5 / 9
     }
 }
