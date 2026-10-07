@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreLocation
+import MapKit
 
 struct SettingsView: View {
     @ObservedObject var preference: LocationPreferenceStore
@@ -166,15 +167,16 @@ struct SettingsView: View {
         errorMessage = nil
         Task {
             do {
-                let placemarks = try await CLGeocoder().geocodeAddressString(query)
-                guard let placemark = placemarks.first, let location = placemark.location else {
+                guard let request = MKGeocodingRequest(addressString: query) else {
                     throw GeocodeError.notFound
                 }
-                let displayName = [placemark.locality, placemark.administrativeArea, placemark.country]
-                    .compactMap { $0 }
-                    .joined(separator: ", ")
+                guard let mapItem = try await request.mapItems.first else {
+                    throw GeocodeError.notFound
+                }
+                let location = mapItem.location
+                let displayName = mapItem.address?.shortAddress ?? query
                 preference.selection = .custom(
-                    name: displayName.isEmpty ? query : displayName,
+                    name: displayName,
                     latitude: location.coordinate.latitude,
                     longitude: location.coordinate.longitude
                 )
