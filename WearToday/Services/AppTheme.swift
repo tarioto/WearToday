@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Purely the home screen's background color choice.
 enum AppTheme: String, Codable, CaseIterable, Identifiable {
@@ -65,6 +66,13 @@ enum AppTheme: String, Codable, CaseIterable, Identifiable {
         }
     }
 
+    /// The color scheme for content drawn directly on the gradient, such as the header.
+    /// The colored gradients are too saturated for black text, so they always use dark styling.
+    /// nil means follow the app's Light/Dark appearance.
+    var overlayColorScheme: ColorScheme? {
+        self == .none ? nil : .dark
+    }
+
     var swatchGradient: LinearGradient {
         let colors = self == .none ? [Color(.systemGray4), Color(.systemGray2)] : gradientColors
         return LinearGradient(colors: colors, startPoint: .top, endPoint: .bottom)
@@ -87,10 +95,11 @@ enum AppAppearance: String, Codable, CaseIterable, Identifiable {
         }
     }
 
-    /// nil means "follow the device's current Light/Dark Mode setting".
-    var colorScheme: ColorScheme? {
+    /// Applied to the window so already-presented sheets update immediately.
+    /// .unspecified means "follow the device's current Light/Dark Mode setting".
+    var userInterfaceStyle: UIUserInterfaceStyle {
         switch self {
-        case .system: return nil
+        case .system: return .unspecified
         case .light: return .light
         case .dark: return .dark
         }

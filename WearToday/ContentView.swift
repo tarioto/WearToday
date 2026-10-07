@@ -9,6 +9,7 @@ struct ContentView: View {
     @StateObject private var themePreference = ThemePreferenceStore()
     @StateObject private var viewModel: DayPlanViewModel
     @State private var showingSettings = false
+    @Environment(\.colorScheme) private var colorScheme
 
     init() {
         let manager = LocationManager()
@@ -23,13 +24,15 @@ struct ContentView: View {
             HStack {
                 Text("WearToday")
                     .font(.largeTitle.bold())
+                    .shadow(color: .black.opacity(themePreference.theme == .none ? 0 : 0.25), radius: 4, y: 1)
+                    .environment(\.colorScheme, themePreference.theme.overlayColorScheme ?? colorScheme)
                 Spacer()
                 Button {
                     Task { await viewModel.refresh() }
                 } label: {
                     Image(systemName: "arrow.clockwise")
                         .font(.title2)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(headerIconColor)
                         .frame(width: 32, height: 32)
                 }
                 .buttonStyle(.glass)
@@ -42,7 +45,7 @@ struct ContentView: View {
                 } label: {
                     Image(systemName: "gearshape.fill")
                         .font(.title2)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(headerIconColor)
                         .frame(width: 32, height: 32)
                 }
                 .buttonStyle(.glass)
@@ -65,7 +68,9 @@ struct ContentView: View {
         .environmentObject(temperaturePreference)
         .environmentObject(cardPreference)
         .tint(themePreference.theme.accentColor)
-        .preferredColorScheme(themePreference.appearance.colorScheme)
+        .onChange(of: themePreference.appearance, initial: true) { _, appearance in
+            applyAppearance(appearance)
+        }
         .onAppear { viewModel.start() }
         .sheet(isPresented: $showingSettings) {
             SettingsView(
@@ -80,6 +85,22 @@ struct ContentView: View {
     private var themeBackground: some View {
         LinearGradient(colors: themePreference.theme.gradientColors, startPoint: .topLeading, endPoint: .bottomTrailing)
             .ignoresSafeArea()
+    }
+
+    /// Plain black or white icons so the theme's accent tint doesn't color them.
+    private var headerIconColor: Color {
+        colorScheme == .dark ? .white : .black
+    }
+
+    /// Overrides the window's style rather than using preferredColorScheme, which
+    /// doesn't update an open sheet and doesn't reliably revert to the system setting.
+    private func applyAppearance(_ appearance: AppAppearance) {
+        for scene in UIApplication.shared.connectedScenes {
+            guard let windowScene = scene as? UIWindowScene else { continue }
+            for window in windowScene.windows {
+                window.overrideUserInterfaceStyle = appearance.userInterfaceStyle
+            }
+        }
     }
 
     private var isRefreshing: Bool {
