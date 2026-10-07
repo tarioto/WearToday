@@ -7,6 +7,7 @@ struct SettingsView: View {
     @ObservedObject var temperaturePreference: TemperaturePreferenceStore
     @ObservedObject var cardPreference: CardPreferenceStore
     @ObservedObject var themePreference: ThemePreferenceStore
+    @ObservedObject var providerPreference: WeatherProviderPreferenceStore
     @Environment(\.dismiss) private var dismiss
 
     @State private var searchText = ""
@@ -67,6 +68,20 @@ struct SettingsView: View {
                     Text("Custom City")
                 } footer: {
                     Text("Search for a city to see its weather instead of your current location.")
+                }
+
+                Section {
+                    Picker("Weather Source", selection: $providerPreference.provider) {
+                        ForEach(WeatherProvider.allCases) { provider in
+                            Text(provider.label).tag(provider)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                } header: {
+                    Text("Weather Source")
+                } footer: {
+                    Text("Open-Meteo includes a forecast spread in the hourly chart. Apple Weather uses the same data as the Weather app.")
                 }
 
                 Section("Temperature Unit") {
@@ -199,6 +214,7 @@ private enum GeocodeError: Error {
         preference: LocationPreferenceStore(),
         temperaturePreference: TemperaturePreferenceStore(),
         cardPreference: CardPreferenceStore(),
-        themePreference: ThemePreferenceStore()
+        themePreference: ThemePreferenceStore(),
+        providerPreference: WeatherProviderPreferenceStore()
     )
 }

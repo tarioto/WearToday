@@ -14,6 +14,10 @@ struct DescriptionWidgetEntryView: View {
                     .font(.subheadline)
                     .lineLimit(6)
                     .minimumScaleFactor(0.8)
+                if let provider = snapshot.provider {
+                    Spacer(minLength: 0)
+                    WeatherAttributionLabel(provider: provider)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .containerBackground(.fill.tertiary, for: .widget)

@@ -4,6 +4,7 @@ struct DayPlanView: View {
     let weather: DailyWeather
     let recommendation: OutfitRecommendation
     var hourly: HourlyForecast? = nil
+    var provider: WeatherProvider = .openMeteo
     @EnvironmentObject private var temperaturePreference: TemperaturePreferenceStore
     @EnvironmentObject private var cardPreference: CardPreferenceStore
 
@@ -12,6 +13,8 @@ struct DayPlanView: View {
             ForEach(cardPreference.visibleOrderedTypes) { type in
                 card(for: type)
             }
+
+            WeatherAttributionView(provider: provider)
         }
     }
 

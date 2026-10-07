@@ -4,13 +4,16 @@ struct PlanSnapshot: Codable, Sendable {
     let weather: DailyWeather
     let recommendation: OutfitRecommendation
     let generatedAt: Date
+    /// Optional so snapshots saved before providers existed still decode.
+    var provider: WeatherProvider?
 }
 
 extension PlanSnapshot {
     static let placeholder = PlanSnapshot(
         weather: .placeholder,
         recommendation: .placeholder,
-        generatedAt: .now
+        generatedAt: .now,
+        provider: .openMeteo
     )
 }
 

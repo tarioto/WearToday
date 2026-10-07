@@ -22,6 +22,11 @@ struct HourlyTemperatureChart: View {
         return (minValue - padding)...(maxValue + padding)
     }
 
+    /// Only ensemble forecasts (Open-Meteo) have a min/max spread worth labelling.
+    private var hasSpread: Bool {
+        hourly.points.contains { $0.maxF > $0.minF }
+    }
+
     private var heatGradient: LinearGradient {
         LinearGradient(colors: Self.heatStops, startPoint: .bottom, endPoint: .top)
     }
@@ -141,7 +146,7 @@ struct HourlyTemperatureChart: View {
                 }
             }
 
-            Text("Shaded band shows model spread · bars show chance of rain")
+            Text(hasSpread ? "Shaded band shows model spread · bars show chance of rain" : "Bars show chance of rain")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
