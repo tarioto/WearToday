@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		0042C63B9B9A62046E4D8E45 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DF6933B6E8D612B8A83566B /* ContentView.swift */; };
 		00C457DB2336B7FB4363BBF1 /* HourlyForecastService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791E96001E2D6AC475EB2EE7 /* HourlyForecastService.swift */; };
-		051438B5AF8DD5337A44EF77 /* AppIconSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC121DB9D3603C9481D35B79 /* AppIconSwitcher.swift */; };
+		09830C9A6945C8F90FFD77CD /* AppIconPreferenceStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03FFFB3234416824A1FF5C3 /* AppIconPreferenceStoreTests.swift */; };
 		09CCC5023D17EDD6397B177E /* EmptyPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20B39CB6C6099B13C3F24892 /* EmptyPlanView.swift */; };
 		0F6ACB7786E3B8609C683E57 /* WeatherOnlyPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47152316596DF8DDC89F7CD0 /* WeatherOnlyPlanView.swift */; };
 		163C42E841944DF349C6DDDA /* OutfitRecommendation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B56C68C387BAA8EA331B45 /* OutfitRecommendation.swift */; };
@@ -57,6 +57,7 @@
 		C460295727650884E9719E67 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E9F0729A3D8439D7109066 /* SettingsView.swift */; };
 		C4AF318455BC4569077A7B78 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 1FFD7B950DC71BF7238824FC /* AppIcon.icon */; };
 		C7321384BEA8EE08E4456710 /* DayPlanFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4267820FEAF688CC052818A0 /* DayPlanFetcher.swift */; };
+		CAF77FD8507A82B78268DAEA /* AppIconPreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC2209F1B197F9BBEC1A855 /* AppIconPreferenceStore.swift */; };
 		CEFB333BF57340F9563FD12F /* HourlyTemperatureChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = E802ED00298CD2697D0C9FDC /* HourlyTemperatureChart.swift */; };
 		D71E823D7D087D14F1793302 /* DisplayedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BC68CA91ED22FF7A7B923ED /* DisplayedItem.swift */; };
 		D82A522712346CD9B55CA198 /* ThemePreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 714127B41C4CD01C2235F421 /* ThemePreferenceStore.swift */; };
@@ -144,12 +145,13 @@
 		9FFAB9FDBCD0CD4AC6EC975F /* WearTodayWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WearTodayWidgetsBundle.swift; sourceTree = "<group>"; };
 		A2B1EE34C038825DCD7E38BB /* AppIcon-Beta.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = "AppIcon-Beta.icon"; sourceTree = "<group>"; };
 		A81E56A8ECD750109919CE39 /* WeatherProviderPreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherProviderPreferenceStore.swift; sourceTree = "<group>"; };
+		B03FFFB3234416824A1FF5C3 /* AppIconPreferenceStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconPreferenceStoreTests.swift; sourceTree = "<group>"; };
 		B8A7CB9B5D5ACD005D6D0F3D /* WearTodayWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WearTodayWidgets.entitlements; sourceTree = "<group>"; };
 		C177C1C50376FA82FA6820A0 /* SkeletonLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonLoadingView.swift; sourceTree = "<group>"; };
 		C9A9E1A4D61B7B3B7EF6C56F /* TemperatureUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureUnit.swift; sourceTree = "<group>"; };
-		CC121DB9D3603C9481D35B79 /* AppIconSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconSwitcher.swift; sourceTree = "<group>"; };
 		CC3AFDC6D7F5F011BEA834A3 /* OutfitAdvisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitAdvisor.swift; sourceTree = "<group>"; };
 		D7E6C135E0C43BEE4F7509CF /* CardPreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPreferenceStore.swift; sourceTree = "<group>"; };
+		DAC2209F1B197F9BBEC1A855 /* AppIconPreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconPreferenceStore.swift; sourceTree = "<group>"; };
 		E3B3B0F1E063EF818C37D9B3 /* EmojiWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiWidget.swift; sourceTree = "<group>"; };
 		E802ED00298CD2697D0C9FDC /* HourlyTemperatureChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HourlyTemperatureChart.swift; sourceTree = "<group>"; };
 		F0EA020D911A6DD59210884A /* LocationPreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPreferenceStore.swift; sourceTree = "<group>"; };
@@ -223,6 +225,7 @@
 		86D248DEEAC04B490E5F9C81 /* WearTodayTests */ = {
 			isa = PBXGroup;
 			children = (
+				B03FFFB3234416824A1FF5C3 /* AppIconPreferenceStoreTests.swift */,
 				1CBDAEA5A32F47A7289C2C74 /* BackgroundPlanRefreshTests.swift */,
 				3193556F185208D8C88AF708 /* DayPlanViewModelTests.swift */,
 				6E8EA51B6D61B19459FAA020 /* OutfitAdvisorPromptTests.swift */,
@@ -254,7 +257,7 @@
 		A9A62BCD7EF5019939353A34 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				CC121DB9D3603C9481D35B79 /* AppIconSwitcher.swift */,
+				DAC2209F1B197F9BBEC1A855 /* AppIconPreferenceStore.swift */,
 				9C9F306930E58A547B9E30D4 /* AppleWeatherService.swift */,
 				6D72E0664230027C85D9536D /* AppTheme.swift */,
 				F4D97F84AF4C59B68F1A8AEA /* BackgroundPlanRefresh.swift */,
@@ -406,7 +409,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				051438B5AF8DD5337A44EF77 /* AppIconSwitcher.swift in Sources */,
+				CAF77FD8507A82B78268DAEA /* AppIconPreferenceStore.swift in Sources */,
 				A306B8228BB555D05FAECF04 /* AppTheme.swift in Sources */,
 				4D03B1DF6DB26EC7742CEFAE /* AppleWeatherService.swift in Sources */,
 				7820EEE1617ED4234219ACD3 /* BackgroundPlanRefresh.swift in Sources */,
@@ -444,6 +447,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				09830C9A6945C8F90FFD77CD /* AppIconPreferenceStoreTests.swift in Sources */,
 				A9E63A52EF6BFC0A62049753 /* BackgroundPlanRefreshTests.swift in Sources */,
 				3B6C296AC1DDC0C6B87C0585 /* DayPlanViewModelTests.swift in Sources */,
 				5C51E1603B7EA1C1D9477CF5 /* OutfitAdvisorPromptTests.swift in Sources */,
