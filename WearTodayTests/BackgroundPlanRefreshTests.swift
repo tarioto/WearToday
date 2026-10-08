@@ -270,12 +270,6 @@ struct BackgroundPlanRefreshTests {
 
 // MARK: - Harness
 
-private let pacific = TimeZone(identifier: "America/Los_Angeles")!
-
-private func date(_ iso: String) -> Date {
-    try! Date(iso, strategy: .iso8601)
-}
-
 @MainActor
 private final class Harness {
     let fetcher = RecordingPlanFetcher()
@@ -292,11 +286,9 @@ private final class Harness {
     }
 
     var refresher: BackgroundPlanRefresher {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = timeZone
-        return BackgroundPlanRefresher(
+        BackgroundPlanRefresher(
             fetcher: fetcher,
-            calendar: calendar,
+            calendar: gregorianCalendar(in: timeZone),
             now: { [unowned self] in now },
             loadSnapshot: { [unowned self] in snapshot },
             publish: { [unowned self] in published.append($0) },
@@ -356,15 +348,5 @@ private actor RecordingPlanFetcher: DayPlanFetching {
             try await Task.sleep(for: .seconds(600))
         }
         return try recommendationResult.get()
-    }
-}
-
-private extension PlanSnapshot {
-    static func generated(at date: Date) -> PlanSnapshot {
-        PlanSnapshot(weather: .placeholder, recommendation: .placeholder, generatedAt: date, provider: .apple)
-    }
-
-    static func weatherOnly(at date: Date) -> PlanSnapshot {
-        PlanSnapshot(weather: .placeholder, recommendation: nil, generatedAt: date, provider: .apple)
     }
 }

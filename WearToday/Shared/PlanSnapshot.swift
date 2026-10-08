@@ -16,6 +16,12 @@ extension PlanSnapshot {
         generatedAt: .now,
         provider: .apple
     )
+
+    /// Whether this plan was generated on the same day as `now` in `calendar`'s time zone.
+    /// Production passes the device's current calendar, so "today" is the device's local day.
+    func isFromToday(now: Date, calendar: Calendar) -> Bool {
+        calendar.isDate(generatedAt, inSameDayAs: now)
+    }
 }
 
 enum SharedStore {

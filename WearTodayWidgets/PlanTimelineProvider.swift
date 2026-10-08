@@ -11,13 +11,17 @@ struct PlanTimelineProvider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (PlanEntry) -> Void) {
-        let snapshot = context.isPreview ? .placeholder : SharedStore.load()
+        let snapshot = context.isPreview ? .placeholder : currentTimeline().snapshot
         completion(PlanEntry(date: .now, snapshot: snapshot))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<PlanEntry>) -> Void) {
-        let entry = PlanEntry(date: .now, snapshot: SharedStore.load())
-        let nextRefresh = Calendar.current.date(byAdding: .hour, value: 1, to: .now) ?? Date().addingTimeInterval(3600)
-        completion(Timeline(entries: [entry], policy: .after(nextRefresh)))
+        let now = Date.now
+        let timeline = currentTimeline(now: now)
+        completion(Timeline(entries: [PlanEntry(date: now, snapshot: timeline.snapshot)], policy: .after(timeline.reloadDate)))
+    }
+
+    private func currentTimeline(now: Date = .now) -> WidgetPlanTimeline {
+        WidgetPlanTimeline(saved: SharedStore.load(), now: now, calendar: .current)
     }
 }
