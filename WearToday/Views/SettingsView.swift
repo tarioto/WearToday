@@ -8,6 +8,7 @@ struct SettingsView: View {
     @ObservedObject var cardPreference: CardPreferenceStore
     @ObservedObject var themePreference: ThemePreferenceStore
     @ObservedObject var providerPreference: WeatherProviderPreferenceStore
+    @EnvironmentObject private var appIconPreference: AppIconPreferenceStore
     @Environment(\.dismiss) private var dismiss
 
     @State private var searchText = ""
@@ -143,6 +144,20 @@ struct SettingsView: View {
                     Text("The color is used for the home screen background. Appearance controls Light/Dark mode independently.")
                 }
 
+                if appIconPreference.supportsAlternateIcons {
+                    Section("App Icon") {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 18) {
+                                appIconOption(.default, label: "Default", thumbnailName: appIconPreference.buildIcon.thumbnailName)
+                                ForEach(ThemeIcon.allCases) { icon in
+                                    appIconOption(.theme(icon), label: icon.label, thumbnailName: icon.thumbnailName)
+                                }
+                            }
+                            .padding(.vertical, 6)
+                        }
+                    }
+                }
+
                 Section {
                     ForEach($cardPreference.cards) { $config in
                         HStack {
@@ -173,6 +188,40 @@ struct SettingsView: View {
                 }
             }
         }
+    }
+
+    private func appIconOption(_ option: AppIconSelection, label: String, thumbnailName: String) -> some View {
+        let isSelected = appIconPreference.selection == option
+        return Button {
+            Task { await appIconPreference.select(option) }
+        } label: {
+            VStack(spacing: 6) {
+                Image(thumbnailName)
+                    .resizable()
+                    .frame(width: 52, height: 52)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .strokeBorder(Color.primary, lineWidth: isSelected ? 3 : 0)
+                            .padding(-4)
+                    )
+                    .overlay(alignment: .bottomTrailing) {
+                        if isSelected {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.body.bold())
+                                .symbolRenderingMode(.palette)
+                                .foregroundStyle(.white, Color.primary)
+                                .offset(x: 6, y: 6)
+                        }
+                    }
+                Text(label)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(4)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private func search() {
@@ -217,4 +266,5 @@ private enum GeocodeError: Error {
         themePreference: ThemePreferenceStore(),
         providerPreference: WeatherProviderPreferenceStore()
     )
+    .environmentObject(AppIconPreferenceStore())
 }
