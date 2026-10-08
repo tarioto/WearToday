@@ -174,6 +174,8 @@ final class DayPlanViewModel: ObservableObject {
 
     /// Fills in the recommendation for weather that's already on screen; never fails the whole plan.
     private func loadRecommendation(weather: DailyWeather, hourly: HourlyForecast?, provider: WeatherProvider) async {
+        // A retry runs this directly as `loadTask`, so it needs its own guard (#10).
+        guard !Task.isCancelled else { return }
         state = .loaded(weather: weather, hourly: hourly, provider: provider, recommendation: .loading)
         let recommendation: RecommendationState
         if case .unavailable(let reason) = await fetcher.recommendationAvailability() {

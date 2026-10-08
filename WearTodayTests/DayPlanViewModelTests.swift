@@ -348,6 +348,68 @@ struct DayPlanViewModelTests {
         #expect(viewModel.state.loadedHigh == 20)
         #expect(snapshots.map(\.recommendation?.summary) == ["City B"])
     }
+
+    @Test func retryCancelledBySwitchingToCurrentLocationLeavesPlanIdleSoNextGPSFixLoads() async throws {
+        let location = FakeLocationProvider()
+        let fetcher = FakeDayPlanFetcher(recommendation: .failure(FakeFetchError()))
+        let locationPreference = LocationPreferenceStore()
+        locationPreference.selection = .custom(name: "City A", latitude: 10, longitude: 10)
+        let viewModel = DayPlanViewModel(
+            locationManager: location,
+            locationPreference: locationPreference,
+            providerPreference: WeatherProviderPreferenceStore(),
+            fetcher: fetcher,
+            publishSnapshot: { _ in }
+        )
+        viewModel.start()
+        try await waitUntil { viewModel.state.recommendationFailureMessage != nil }
+
+        // Same main-actor turn: the retry is cancelled before it ever runs.
+        viewModel.retryRecommendation()
+        locationPreference.selection = .currentLocation
+        try await Task.sleep(for: .milliseconds(50))
+
+        #expect(viewModel.state.isIdle)
+
+        location.deliver(CLLocationCoordinate2D(latitude: 47.6, longitude: -122.3))
+        try await waitUntil { await fetcher.requestedCoordinates.count == 2 }
+        #expect(await fetcher.requestedCoordinates.map(\.latitude) == [10, 47.6])
+    }
+
+    @Test func retrySupersededByLoadForAnotherCityNeverWritesStateOrPublishes() async throws {
+        let fetcher = GatedRecommendationFetcher()
+        let locationPreference = LocationPreferenceStore()
+        locationPreference.selection = .custom(name: "City A", latitude: 10, longitude: 10)
+        var snapshots: [PlanSnapshot] = []
+        let viewModel = DayPlanViewModel(
+            locationManager: FakeLocationProvider(),
+            locationPreference: locationPreference,
+            providerPreference: WeatherProviderPreferenceStore(),
+            fetcher: fetcher,
+            publishSnapshot: { snapshots.append($0) }
+        )
+        viewModel.start()
+        try await waitUntil { await fetcher.pendingRecommendationCount == 1 }
+        await fetcher.completeRecommendation(with: .failure(FakeFetchError()))
+        try await waitUntil { viewModel.state.recommendationFailureMessage != nil }
+
+        var highsAfterSwitch: [Double?] = []
+        let recorder = viewModel.$state.sink { highsAfterSwitch.append($0.loadedHigh) }
+        highsAfterSwitch.removeAll()
+
+        viewModel.retryRecommendation()
+        locationPreference.selection = .custom(name: "City B", latitude: 20, longitude: 20)
+        try await waitUntil { viewModel.state.loadedHigh == 20 && viewModel.state.isRecommendationLoading }
+        try await Task.sleep(for: .milliseconds(50))
+
+        await fetcher.completeRecommendation(with: .success(OutfitRecommendation(summary: "City B", items: [])))
+        try await waitUntil { viewModel.state.readySummary == "City B" }
+        recorder.cancel()
+
+        #expect(!highsAfterSwitch.contains(10))
+        #expect(snapshots.map(\.weather.highTemperatureF) == [10, 20])
+        #expect(snapshots.map(\.recommendation?.summary) == [nil, "City B"])
+    }
 }
 
 // MARK: - Helpers
@@ -366,6 +428,11 @@ private func makeCustomCityViewModel(fetcher: DayPlanFetching, publishSnapshot: 
 }
 
 private extension LoadState {
+    var isIdle: Bool {
+        if case .idle = self { return true }
+        return false
+    }
+
     var isFailed: Bool {
         if case .failed = self { return true }
         return false
