@@ -2,7 +2,7 @@ import FoundationModels
 
 @Generable
 struct OutfitRecommendation: Codable {
-    @Guide(description: "A warm, conversational 1-2 sentence summary of what to wear and bring today, based on the weather")
+    @Guide(description: "A warm, conversational 1-2 sentence summary of what to wear and bring today, based on the weather. Describe temperature in words, never with numbers or units")
     var summary: String
 
     @Guide(description: "3 to 6 specific items to wear or bring today, ordered by importance", .count(3...6))
@@ -17,7 +17,7 @@ struct RecommendedItem: Codable {
     @Guide(description: "Short item name, 1-3 words, e.g. 'Sunglasses' or 'Light jacket'")
     var name: String
 
-    @Guide(description: "One short sentence, under 12 words, explaining why it's recommended today")
+    @Guide(description: "One short sentence, under 12 words, explaining why it's recommended today, describing temperature in words rather than numbers")
     var reason: String
 }
 
