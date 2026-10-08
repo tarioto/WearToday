@@ -2,9 +2,10 @@ import SwiftUI
 
 struct DayPlanView: View {
     let weather: DailyWeather
-    let recommendation: OutfitRecommendation
+    let recommendation: RecommendationState
     var hourly: HourlyForecast? = nil
     var provider: WeatherProvider = .openMeteo
+    var onRetryRecommendation: () -> Void = {}
     @EnvironmentObject private var temperaturePreference: TemperaturePreferenceStore
     @EnvironmentObject private var cardPreference: CardPreferenceStore
 
@@ -66,9 +67,19 @@ struct DayPlanView: View {
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .center)
             Divider()
-            Text(recommendation.summary)
-                .font(.body)
-                .foregroundStyle(.secondary)
+            switch recommendation {
+            case .ready(let outfit):
+                Text(outfit.summary)
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+            case .loading:
+                Text(SkeletonLoadingView.recommendation.summary)
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .redacted(reason: .placeholder)
+            case .unavailable, .failed:
+                recommendationNotice(for: .plan)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -82,14 +93,143 @@ struct DayPlanView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
             Divider()
 
-            VStack(spacing: 12) {
-                ForEach(Array(recommendation.items.enumerated()), id: \.offset) { _, item in
-                    ItemRow(item: item)
-                }
+            switch recommendation {
+            case .ready(let outfit):
+                itemList(outfit.items)
+            case .loading:
+                itemList(SkeletonLoadingView.recommendation.items)
+                    .redacted(reason: .placeholder)
+            case .unavailable, .failed:
+                recommendationNotice(for: .wearAndBring)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .cardGlass()
+    }
+
+    private func itemList(_ items: [RecommendedItem]) -> some View {
+        VStack(spacing: 12) {
+            ForEach(Array(items.enumerated()), id: \.offset) { _, item in
+                ItemRow(item: item)
+            }
+        }
+    }
+
+    /// The full explanation and action go in the first visible suggestion card; any later one
+    /// just notes there are no suggestions, so the message and button aren't repeated.
+    @ViewBuilder
+    private func recommendationNotice(for card: CardType) -> some View {
+        let firstSuggestionCard = cardPreference.visibleOrderedTypes.first { $0 != .weather }
+        if card == firstSuggestionCard {
+            RecommendationNoticeView(recommendation: recommendation, onRetry: onRetryRecommendation)
+        } else {
+            Text("No outfit suggestions right now.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+        }
+    }
+}
+
+/// Explains why there's no outfit suggestion and offers the matching fix.
+private struct RecommendationNoticeView: View {
+    let recommendation: RecommendationState
+    let onRetry: () -> Void
+    @Environment(\.openURL) private var openURL
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: symbolName)
+                .font(.title2)
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            action
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 4)
+    }
+
+    private var symbolName: String {
+        switch recommendation {
+        case .unavailable(.modelNotReady): return "arrow.down.circle"
+        case .failed: return "exclamationmark.triangle"
+        default: return "apple.intelligence"
+        }
+    }
+
+    private var message: String {
+        switch recommendation {
+        case .unavailable(.deviceNotEligible):
+            return "Outfit suggestions need a device that supports Apple Intelligence."
+        case .unavailable(.appleIntelligenceNotEnabled):
+            return "Turn on Apple Intelligence to get outfit suggestions."
+        case .unavailable(.modelNotReady):
+            return "Apple Intelligence is still getting ready. Try again soon."
+        case .failed:
+            return "Couldn't come up with outfit suggestions this time."
+        case .loading, .ready:
+            return ""
+        }
+    }
+
+    @ViewBuilder
+    private var action: some View {
+        switch recommendation {
+        case .unavailable(.appleIntelligenceNotEnabled):
+            Button {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    openURL(url)
+                }
+            } label: {
+                Label("Open Settings", systemImage: "gear")
+            }
+            .buttonStyle(.bordered)
+        case .unavailable(.modelNotReady), .failed:
+            Button(action: onRetry) {
+                Label("Try Again", systemImage: "arrow.clockwise")
+            }
+            .buttonStyle(.bordered)
+        case .unavailable(.deviceNotEligible), .loading, .ready:
+            EmptyView()
+        }
+    }
+}
+
+#Preview("Apple Intelligence off") {
+    DayPlanPreview(recommendation: .unavailable(.appleIntelligenceNotEnabled))
+}
+
+#Preview("Device not eligible") {
+    DayPlanPreview(recommendation: .unavailable(.deviceNotEligible))
+}
+
+#Preview("Model downloading") {
+    DayPlanPreview(recommendation: .unavailable(.modelNotReady))
+}
+
+#Preview("Generation failed") {
+    DayPlanPreview(recommendation: .failed("The model couldn't respond."))
+}
+
+#Preview("Suggestions loading") {
+    DayPlanPreview(recommendation: .loading)
+}
+
+private struct DayPlanPreview: View {
+    let recommendation: RecommendationState
+
+    var body: some View {
+        ScrollView {
+            DayPlanView(weather: .placeholder, recommendation: recommendation)
+                .padding()
+        }
+        .environmentObject(TemperaturePreferenceStore())
+        .environmentObject(CardPreferenceStore())
     }
 }
 

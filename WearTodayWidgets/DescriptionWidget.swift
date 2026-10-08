@@ -10,10 +10,17 @@ struct DescriptionWidgetEntryView: View {
                 Text(snapshot.weather.conditionDescription)
                     .font(.caption.bold())
                     .foregroundStyle(.secondary)
-                Text(snapshot.recommendation.summary)
-                    .font(.subheadline)
-                    .lineLimit(6)
-                    .minimumScaleFactor(0.8)
+                if let recommendation = snapshot.recommendation {
+                    Text(recommendation.summary)
+                        .font(.subheadline)
+                        .lineLimit(6)
+                        .minimumScaleFactor(0.8)
+                } else {
+                    let unit = SharedStore.loadTemperatureUnit()
+                    Text("H:\(unit.displayString(fromFahrenheit: snapshot.weather.highTemperatureF)) L:\(unit.displayString(fromFahrenheit: snapshot.weather.lowTemperatureF))")
+                        .font(.subheadline)
+                    NoSuggestionsNote()
+                }
                 if let provider = snapshot.provider {
                     Spacer(minLength: 0)
                     WeatherAttributionLabel(provider: provider)
@@ -44,4 +51,5 @@ struct DescriptionWidget: Widget {
     DescriptionWidget()
 } timeline: {
     PlanEntry(date: .now, snapshot: .placeholder)
+    PlanEntry(date: .now, snapshot: .weatherOnlyPlaceholder)
 }

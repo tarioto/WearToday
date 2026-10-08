@@ -1,8 +1,16 @@
 import CoreLocation
+import FoundationModels
+
+/// Whether the on-device model can make outfit suggestions right now.
+enum RecommendationAvailability: Equatable, Sendable {
+    case available
+    case unavailable(RecommendationState.UnavailableReason)
+}
 
 /// The network and on-device model calls behind a day plan, so tests can stub them out.
 protocol DayPlanFetching: Sendable {
     func fetchWeather(for coordinate: CLLocationCoordinate2D, from provider: WeatherProvider) async throws -> (DailyWeather, HourlyForecast?)
+    func recommendationAvailability() async -> RecommendationAvailability
     func recommendation(for weather: DailyWeather) async throws -> OutfitRecommendation
 }
 
@@ -25,6 +33,22 @@ struct DayPlanFetcher: DayPlanFetching {
             let forecast = try await appleWeatherService.fetchForecast(for: coordinate)
             guard let ensemble = await ensembleTask else { return (forecast.daily, forecast.hourly) }
             return (forecast.daily, forecast.hourly.applyingSpread(from: ensemble))
+        }
+    }
+
+    func recommendationAvailability() async -> RecommendationAvailability {
+        switch SystemLanguageModel.default.availability {
+        case .available:
+            return .available
+        case .unavailable(.deviceNotEligible):
+            return .unavailable(.deviceNotEligible)
+        case .unavailable(.appleIntelligenceNotEnabled):
+            return .unavailable(.appleIntelligenceNotEnabled)
+        case .unavailable(.modelNotReady):
+            return .unavailable(.modelNotReady)
+        @unknown default:
+            // A reason this SDK doesn't know yet: treat it as temporary so the user can retry.
+            return .unavailable(.modelNotReady)
         }
     }
 

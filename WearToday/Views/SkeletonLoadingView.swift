@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SkeletonLoadingView: View {
     var body: some View {
-        DayPlanView(weather: .placeholder, recommendation: Self.recommendation, hourly: Self.hourly)
+        DayPlanView(weather: .placeholder, recommendation: .ready(Self.recommendation), hourly: Self.hourly)
             .redacted(reason: .placeholder)
             .disabled(true)
     }
@@ -11,7 +11,7 @@ struct SkeletonLoadingView: View {
 // Sized to match a typical loaded plan (hourly chart, three-line summary, three items with two-line reasons)
 // so the cards don't jump in height when real data arrives. Kept separate from the shared
 // `.placeholder` values, which also back the widget gallery previews.
-private extension SkeletonLoadingView {
+extension SkeletonLoadingView {
     static let recommendation = OutfitRecommendation(
         summary: "With showers and cool temps, stay dry and comfortable with smart layers and some sun protection for the brighter breaks.",
         items: [

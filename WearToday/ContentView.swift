@@ -109,7 +109,7 @@ struct ContentView: View {
 
     private var isRefreshing: Bool {
         switch viewModel.state {
-        case .loadingWeather, .loadingRecommendation:
+        case .loadingWeather, .loaded(_, _, _, .loading):
             return true
         case .idle, .loaded, .failed:
             return false
@@ -119,10 +119,12 @@ struct ContentView: View {
     @ViewBuilder
     private var content: some View {
         switch viewModel.state {
-        case .idle, .loadingWeather, .loadingRecommendation:
+        case .idle, .loadingWeather:
             SkeletonLoadingView()
-        case .loaded(let weather, let recommendation, let hourly, let provider):
-            DayPlanView(weather: weather, recommendation: recommendation, hourly: hourly, provider: provider)
+        case .loaded(let weather, let hourly, let provider, let recommendation):
+            DayPlanView(weather: weather, recommendation: recommendation, hourly: hourly, provider: provider) {
+                viewModel.retryRecommendation()
+            }
         case .failed(let message):
             ErrorStateView(message: message) {
                 viewModel.retry()
