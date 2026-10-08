@@ -2,19 +2,13 @@
   "fill-specializations" : [
     {
       "value" : {
-        "linear-gradient" : [
-          "display-p3:0.80000,0.62000,1.00000,1.00000",
-          "display-p3:0.45000,0.22000,0.85000,1.00000"
-        ]
+        "solid" : "display-p3:0.13000,0.38000,0.72000,1.00000"
       }
     },
     {
       "appearance" : "dark",
       "value" : {
-        "linear-gradient" : [
-          "display-p3:0.24000,0.12000,0.36000,1.00000",
-          "display-p3:0.08000,0.03000,0.14000,1.00000"
-        ]
+        "solid" : "display-p3:0.13000,0.38000,0.72000,1.00000"
       }
     }
   ],
@@ -118,6 +112,37 @@
       "translucency" : {
         "enabled" : true,
         "value" : 0.3
+      }
+    },
+    {
+      "layers" : [
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "display-p3:1.00000,1.00000,1.00000,0.45000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "display-p3:1.00000,1.00000,1.00000,0.45000"
+              }
+            }
+          ],
+          "glass" : false,
+          "image-name" : "grid.svg",
+          "name" : "grid"
+        }
+      ],
+      "name" : "Grid",
+      "shadow" : {
+        "kind" : "none",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0.5
       }
     }
   ],
