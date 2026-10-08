@@ -15,6 +15,7 @@ struct DayPlanView: View {
             }
 
             WeatherAttributionView(provider: provider)
+                .modifier(PlaceholderShimmer())
         }
     }
 
@@ -114,6 +115,7 @@ private struct ItemRow: View {
 
 private extension View {
     func cardGlass() -> some View {
-        glassEffect(in: .rect(cornerRadius: 16))
+        modifier(PlaceholderShimmer())
+            .glassEffect(in: .rect(cornerRadius: 16))
     }
 }

@@ -1,18 +1,10 @@
 import SwiftUI
 
 struct SkeletonLoadingView: View {
-    @State private var shimmerPhase: CGFloat = -0.5
-
     var body: some View {
         DayPlanView(weather: .placeholder, recommendation: Self.recommendation, hourly: Self.hourly)
             .redacted(reason: .placeholder)
             .disabled(true)
-            .modifier(ShimmerMask(phase: shimmerPhase))
-            .onAppear {
-                withAnimation(.linear(duration: 1.3).repeatForever(autoreverses: false)) {
-                    shimmerPhase = 1.5
-                }
-            }
     }
 }
 
@@ -47,6 +39,27 @@ private extension SkeletonLoadingView {
         }
         return HourlyForecast(timeZone: .current, points: points)
     }()
+}
+
+// Shimmers placeholder-redacted content. Applied inside each card, beneath its glass:
+// masking the glass itself renders it offscreen, which flattens its diffuse shadow.
+struct PlaceholderShimmer: ViewModifier {
+    @Environment(\.redactionReasons) private var redactionReasons
+    @State private var phase: CGFloat = -0.5
+
+    func body(content: Content) -> some View {
+        if redactionReasons.contains(.placeholder) {
+            content
+                .modifier(ShimmerMask(phase: phase))
+                .onAppear {
+                    withAnimation(.linear(duration: 1.3).repeatForever(autoreverses: false)) {
+                        phase = 1.5
+                    }
+                }
+        } else {
+            content
+        }
+    }
 }
 
 private struct ShimmerMask: ViewModifier, Animatable {
