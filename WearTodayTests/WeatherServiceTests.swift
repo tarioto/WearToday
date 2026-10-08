@@ -4,12 +4,13 @@ import Testing
 
 struct WeatherServiceTests {
     @Test func dailyDateIsMidnightOfTheForecastDayInAFarAheadTimeZone() throws {
-        let data = openMeteoResponse(timezone: "Pacific/Auckland", utcOffsetSeconds: 46_800, date: "2026-10-09")
+        let data = try openMeteoResponse(timezone: "Pacific/Auckland", utcOffsetSeconds: 46_800, date: "2026-10-09")
 
         let weather = try WeatherService.dailyWeather(from: data)
 
         // 2026-10-09 00:00 NZDT (UTC+13)
-        #expect(weather.date == isoDate("2026-10-08T11:00:00Z"))
+        let expected = try isoDate("2026-10-08T11:00:00Z")
+        #expect(weather.date == expected)
     }
 
     @Test(arguments: [
@@ -17,7 +18,7 @@ struct WeatherServiceTests {
         ("America/Los_Angeles", -25_200),
     ])
     func dailyDateIsTheGregorianForecastDayInTheForecastTimeZone(timezone: String, utcOffsetSeconds: Int) throws {
-        let data = openMeteoResponse(timezone: timezone, utcOffsetSeconds: utcOffsetSeconds, date: "2026-10-09")
+        let data = try openMeteoResponse(timezone: timezone, utcOffsetSeconds: utcOffsetSeconds, date: "2026-10-09")
 
         let weather = try WeatherService.dailyWeather(from: data)
 
@@ -31,16 +32,27 @@ struct WeatherServiceTests {
         #expect(components.minute == 0)
     }
 
-    @Test func unparseableDailyDateThrowsDecodingFailed() {
-        let data = openMeteoResponse(timezone: "Pacific/Auckland", utcOffsetSeconds: 46_800, date: "not-a-date")
+    @Test func dailyDateIsTheGregorianForecastDayOnABuddhistCalendarDevice() throws {
+        let data = try openMeteoResponse(timezone: "Asia/Bangkok", utcOffsetSeconds: 25_200, date: "2026-10-09")
+        let thaiDevice = Locale(identifier: "th_TH@calendar=buddhist")
+
+        let weather = try WeatherService.dailyWeather(from: data, deviceLocale: thaiDevice)
+
+        // 2026-10-09 00:00 ICT (UTC+7), not Buddhist year 2026 (Gregorian 1483)
+        let expected = try isoDate("2026-10-08T17:00:00Z")
+        #expect(weather.date == expected)
+    }
+
+    @Test func unparseableDailyDateThrowsDecodingFailed() throws {
+        let data = try openMeteoResponse(timezone: "Pacific/Auckland", utcOffsetSeconds: 46_800, date: "not-a-date")
 
         #expect(throws: WeatherServiceError.decodingFailed) {
             try WeatherService.dailyWeather(from: data)
         }
     }
 
-    private func openMeteoResponse(timezone: String, utcOffsetSeconds: Int, date: String) -> Data {
-        """
+    private func openMeteoResponse(timezone: String, utcOffsetSeconds: Int, date: String) throws -> Data {
+        try #require("""
         {
           "timezone": "\(timezone)",
           "utc_offset_seconds": \(utcOffsetSeconds),
@@ -54,10 +66,10 @@ struct WeatherServiceTests {
             "weathercode": [1]
           }
         }
-        """.data(using: .utf8)!
+        """.data(using: .utf8))
     }
 
-    private func isoDate(_ string: String) -> Date {
-        try! Date(string, strategy: .iso8601)
+    private func isoDate(_ string: String) throws -> Date {
+        try Date(string, strategy: .iso8601)
     }
 }

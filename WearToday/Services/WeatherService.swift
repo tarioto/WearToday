@@ -38,7 +38,9 @@ struct WeatherService {
         return try Self.dailyWeather(from: data)
     }
 
-    static func dailyWeather(from data: Data) throws -> DailyWeather {
+    /// `deviceLocale` stands in for the device's settings, which a fresh
+    /// `DateFormatter` picks up; tests pass e.g. a Buddhist-calendar locale.
+    static func dailyWeather(from data: Data, deviceLocale: Locale = .current) throws -> DailyWeather {
         let decoded: OpenMeteoResponse
         do {
             decoded = try JSONDecoder().decode(OpenMeteoResponse.self, from: data)
@@ -63,6 +65,9 @@ struct WeatherService {
         }
 
         let formatter = DateFormatter()
+        formatter.locale = deviceLocale
+        // Override the device's locale and calendar so they can't change the parse
+        // (a Buddhist calendar would read 2026 as Gregorian 1483).
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.calendar = Calendar(identifier: .gregorian)
         formatter.timeZone = timeZone
