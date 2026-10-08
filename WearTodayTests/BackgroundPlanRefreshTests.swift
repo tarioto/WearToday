@@ -234,39 +234,37 @@ struct BackgroundPlanRefreshTests {
         #expect(harness.published.isEmpty)
     }
 
-    @Test func nextRequestIsJustAfterTheNextLocalMidnight() async {
+    @Test func nextRequestIsJustAfterTheNextLocalMidnight() {
         let harness = Harness(now: date("2026-10-08T15:00:00-07:00"))
         harness.snapshot = .generated(at: date("2026-10-08T07:00:00-07:00"))
 
-        #expect(await harness.refresher.nextRequestDate() == date("2026-10-09T00:05:00-07:00"))
+        #expect(harness.refresher.nextRequestDate(availability: .available) == date("2026-10-09T00:05:00-07:00"))
     }
 
     @Test(arguments: [
         RecommendationState.UnavailableReason.deviceNotEligible,
         .appleIntelligenceNotEnabled,
     ])
-    func nextRequestWaitsForMidnightWhenTodaysWeatherOnlyPlanCantGetSuggestions(reason: RecommendationState.UnavailableReason) async {
+    func nextRequestWaitsForMidnightWhenTodaysWeatherOnlyPlanCantGetSuggestions(reason: RecommendationState.UnavailableReason) {
         let harness = Harness(now: date("2026-10-08T15:00:00-07:00"))
         harness.snapshot = .weatherOnly(at: date("2026-10-08T07:00:00-07:00"))
-        await harness.fetcher.makeUnavailable(reason)
 
-        #expect(await harness.refresher.nextRequestDate() == date("2026-10-09T00:05:00-07:00"))
+        #expect(harness.refresher.nextRequestDate(availability: .unavailable(reason)) == date("2026-10-09T00:05:00-07:00"))
     }
 
     @Test(arguments: [RecommendationAvailability.available, .unavailable(.modelNotReady)])
-    func nextRequestRetriesWithinTheHourWhileTodaysSuggestionsAreStillMissing(availability: RecommendationAvailability) async {
+    func nextRequestRetriesWithinTheHourWhileTodaysSuggestionsAreStillMissing(availability: RecommendationAvailability) {
         let harness = Harness(now: date("2026-10-08T15:00:00-07:00"))
         harness.snapshot = .weatherOnly(at: date("2026-10-08T07:00:00-07:00"))
-        await harness.fetcher.setAvailability(availability)
 
-        #expect(await harness.refresher.nextRequestDate() == date("2026-10-08T16:00:00-07:00"))
+        #expect(harness.refresher.nextRequestDate(availability: availability) == date("2026-10-08T16:00:00-07:00"))
     }
 
-    @Test func nextRequestRetriesWithinTheHourWhileThePlanIsStillStale() async {
+    @Test func nextRequestRetriesWithinTheHourWhileThePlanIsStillStale() {
         let harness = Harness(now: date("2026-10-08T06:00:00-07:00"))
         harness.snapshot = .generated(at: date("2026-10-07T18:00:00-07:00"))
 
-        #expect(await harness.refresher.nextRequestDate() == date("2026-10-08T07:00:00-07:00"))
+        #expect(harness.refresher.nextRequestDate(availability: .available) == date("2026-10-08T07:00:00-07:00"))
     }
 }
 
@@ -327,7 +325,6 @@ private actor RecordingPlanFetcher: DayPlanFetching {
     func failWeather() { weatherResult = .failure(StubFailure()) }
     func failRecommendation() { recommendationResult = .failure(StubFailure()) }
     func makeUnavailable(_ reason: RecommendationState.UnavailableReason) { availability = .unavailable(reason) }
-    func setAvailability(_ availability: RecommendationAvailability) { self.availability = availability }
 
     /// Runs `hook` inside `fetchWeather`, e.g. to simulate the user changing something in the app mid-fetch.
     private var weatherFetchHook: (@MainActor @Sendable () -> Void)?

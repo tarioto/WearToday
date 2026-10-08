@@ -80,8 +80,14 @@ struct BackgroundPlanRefresher {
     /// When the next background refresh should run: just after the next local midnight, or
     /// within the hour while the saved plan still needs a refresh (see `hasCurrentSnapshot`),
     /// e.g. because this run failed or today's suggestions are still missing.
-    func nextRequestDate() async -> Date {
-        let availability = await fetcher.recommendationAvailability()
+    ///
+    /// Synchronous so the app can submit the request before it's suspended on `.background`;
+    /// the caller passes the model's current availability.
+    ///
+    /// Policy: a weather-only plan from today with the model `.available` (generation keeps
+    /// failing, e.g. rate limited) retries hourly until midnight. That's bounded to one day and
+    /// iOS throttles background refresh anyway; at midnight the plan goes stale and the cycle restarts.
+    func nextRequestDate(availability: RecommendationAvailability) -> Date {
         let now = now()
         guard hasCurrentSnapshot(loadSnapshot(), availability: availability) else { return now.addingTimeInterval(Self.staleRetryInterval) }
         let tomorrow = calendar.date(byAdding: .day, value: 1, to: now)!

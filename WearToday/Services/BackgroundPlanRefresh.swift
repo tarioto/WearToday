@@ -16,17 +16,18 @@ enum BackgroundPlanRefresh {
         let refresher = makeRefresher()
         let outcome = await refresher.refreshIfStale()
         logger.info("Background plan refresh finished: \(String(describing: outcome), privacy: .public)")
-        await schedule(using: refresher)
+        schedule(using: refresher)
     }
 
-    /// Submits (or replaces) the pending refresh request.
+    /// Submits (or replaces) the pending refresh request. Synchronous, so it's submitted
+    /// before the app is suspended when called on the `.background` scene-phase change.
     static func schedule() {
-        Task { await schedule(using: makeRefresher()) }
+        schedule(using: makeRefresher())
     }
 
-    private static func schedule(using refresher: BackgroundPlanRefresher) async {
+    private static func schedule(using refresher: BackgroundPlanRefresher) {
         let request = BGAppRefreshTaskRequest(identifier: taskIdentifier)
-        request.earliestBeginDate = await refresher.nextRequestDate()
+        request.earliestBeginDate = refresher.nextRequestDate(availability: DayPlanFetcher.currentAvailability())
         do {
             try BGTaskScheduler.shared.submit(request)
         } catch {
