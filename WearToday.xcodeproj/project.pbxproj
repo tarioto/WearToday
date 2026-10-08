@@ -14,6 +14,7 @@
 		0F6ACB7786E3B8609C683E57 /* WeatherOnlyPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47152316596DF8DDC89F7CD0 /* WeatherOnlyPlanView.swift */; };
 		163C42E841944DF349C6DDDA /* OutfitRecommendation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B56C68C387BAA8EA331B45 /* OutfitRecommendation.swift */; };
 		17D969587D08767FF52F298C /* PlanTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CB4A54EF15B6FA4E7C46495 /* PlanTimelineProvider.swift */; };
+		1990E75066E4B0103F9ED987 /* WidgetPlanTimelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A503F893EB1FBC828AAB0E /* WidgetPlanTimelineTests.swift */; };
 		1FAF12D18499270FFE1AAC38 /* WearTodayWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3396C43EAC2CAFDEAB5564A4 /* WearTodayWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		21B6E5C77065276380A26AA3 /* DayPlanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B1517DD78F053F63F34980 /* DayPlanViewModel.swift */; };
 		255F9ED13A96D55A0BA05CBC /* BackgroundPlanRefresher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F45B40265F589773219A90D /* BackgroundPlanRefresher.swift */; };
@@ -33,6 +34,7 @@
 		4D03B1DF6DB26EC7742CEFAE /* AppleWeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C9F306930E58A547B9E30D4 /* AppleWeatherService.swift */; };
 		4EC39EB1E93B97943EF9BE42 /* TemperatureUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9A9E1A4D61B7B3B7EF6C56F /* TemperatureUnit.swift */; };
 		4FD85921D5A86FCFC007E394 /* TemperaturePreferenceStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE517D2E9698B9B69BE7E31 /* TemperaturePreferenceStoreTests.swift */; };
+		532BDF5DB8B3312800284CAA /* WidgetPlanTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = C544D067DE6C356295692509 /* WidgetPlanTimeline.swift */; };
 		53CD18CC37718C652CADBE00 /* CombinedWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631EC3EC6CD478FF1CE65906 /* CombinedWidget.swift */; };
 		53E01F2AE84A9F6082936AB4 /* WearTodayWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FFAB9FDBCD0CD4AC6EC975F /* WearTodayWidgetsBundle.swift */; };
 		574688A6AD114168B8CB5DCD /* AppIcon-Beta.icon in Resources */ = {isa = PBXBuildFile; fileRef = A2B1EE34C038825DCD7E38BB /* AppIcon-Beta.icon */; };
@@ -40,6 +42,7 @@
 		5C51E1603B7EA1C1D9477CF5 /* OutfitAdvisorPromptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E8EA51B6D61B19459FAA020 /* OutfitAdvisorPromptTests.swift */; };
 		71746EF95C5E6C245D5275FB /* OutfitRecommendation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B56C68C387BAA8EA331B45 /* OutfitRecommendation.swift */; };
 		7820EEE1617ED4234219ACD3 /* BackgroundPlanRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D97F84AF4C59B68F1A8AEA /* BackgroundPlanRefresh.swift */; };
+		7EE293A032EF4EF2C5449671 /* WidgetPlanTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = C544D067DE6C356295692509 /* WidgetPlanTimeline.swift */; };
 		8AB386112E706EE5A8455C32 /* DailyWeather.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25B71CD96597F7F92E2FC5F9 /* DailyWeather.swift */; };
 		9416DE5C396EBD31EB2A7738 /* AppIcon-Midnight.icon in Resources */ = {isa = PBXBuildFile; fileRef = CEDC620536554B4BE4A9B78A /* AppIcon-Midnight.icon */; };
 		94AA67DD30112AD879A82B0D /* WeatherProviderPreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81E56A8ECD750109919CE39 /* WeatherProviderPreferenceStore.swift */; };
@@ -47,6 +50,7 @@
 		9AEFAA0DF4A742CC52FCBD81 /* DescriptionWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A258C5E694ECF9974C23B78 /* DescriptionWidget.swift */; };
 		9EC7E38B451CD6C735537C9C /* WeatherServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BA09C877AA69122DC373050 /* WeatherServiceTests.swift */; };
 		A306B8228BB555D05FAECF04 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D72E0664230027C85D9536D /* AppTheme.swift */; };
+		A80E43AB809B82078D64FB0D /* TestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = C85E417EF1B84143FBE2584A /* TestSupport.swift */; };
 		A9E63A52EF6BFC0A62049753 /* BackgroundPlanRefreshTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CBDAEA5A32F47A7289C2C74 /* BackgroundPlanRefreshTests.swift */; };
 		AA6F940632F92416AFFFC8B6 /* RecommendedItemListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4729E0D682C7EEF83EEF2456 /* RecommendedItemListTests.swift */; };
 		B0652AE2E2082131240744B8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A5D1871054C86610DB402A4 /* Assets.xcassets */; };
@@ -121,6 +125,7 @@
 		3376BCC0ECC9671483CBB4AB /* TemperaturePreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperaturePreferenceStore.swift; sourceTree = "<group>"; };
 		3396C43EAC2CAFDEAB5564A4 /* WearTodayWidgetsExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = WearTodayWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D8B01391182C8ABE33833CC /* AppIcon-Dev.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = "AppIcon-Dev.icon"; sourceTree = "<group>"; };
+		40A503F893EB1FBC828AAB0E /* WidgetPlanTimelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetPlanTimelineTests.swift; sourceTree = "<group>"; };
 		4267820FEAF688CC052818A0 /* DayPlanFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPlanFetcher.swift; sourceTree = "<group>"; };
 		47152316596DF8DDC89F7CD0 /* WeatherOnlyPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherOnlyPlanView.swift; sourceTree = "<group>"; };
 		4729E0D682C7EEF83EEF2456 /* RecommendedItemListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedItemListTests.swift; sourceTree = "<group>"; };
@@ -155,6 +160,8 @@
 		B8A7CB9B5D5ACD005D6D0F3D /* WearTodayWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WearTodayWidgets.entitlements; sourceTree = "<group>"; };
 		BCCE27C6EAFF1A7108D5ACEA /* AppIcon-Aurora.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = "AppIcon-Aurora.icon"; sourceTree = "<group>"; };
 		C177C1C50376FA82FA6820A0 /* SkeletonLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonLoadingView.swift; sourceTree = "<group>"; };
+		C544D067DE6C356295692509 /* WidgetPlanTimeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetPlanTimeline.swift; sourceTree = "<group>"; };
+		C85E417EF1B84143FBE2584A /* TestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSupport.swift; sourceTree = "<group>"; };
 		C9A9E1A4D61B7B3B7EF6C56F /* TemperatureUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureUnit.swift; sourceTree = "<group>"; };
 		CC3AFDC6D7F5F011BEA834A3 /* OutfitAdvisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitAdvisor.swift; sourceTree = "<group>"; };
 		CEDC620536554B4BE4A9B78A /* AppIcon-Midnight.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = "AppIcon-Midnight.icon"; sourceTree = "<group>"; };
@@ -244,7 +251,9 @@
 				02282E6AB0173B82AF9E00DF /* PlanSnapshotTests.swift */,
 				4729E0D682C7EEF83EEF2456 /* RecommendedItemListTests.swift */,
 				0DE517D2E9698B9B69BE7E31 /* TemperaturePreferenceStoreTests.swift */,
+				C85E417EF1B84143FBE2584A /* TestSupport.swift */,
 				5BA09C877AA69122DC373050 /* WeatherServiceTests.swift */,
+				40A503F893EB1FBC828AAB0E /* WidgetPlanTimelineTests.swift */,
 			);
 			path = WearTodayTests;
 			sourceTree = "<group>";
@@ -296,6 +305,7 @@
 				7646D4FAF10CF78590280CBC /* PlanSnapshot.swift */,
 				C9A9E1A4D61B7B3B7EF6C56F /* TemperatureUnit.swift */,
 				9350DFA102E80C7506DFF2F3 /* WeatherProvider.swift */,
+				C544D067DE6C356295692509 /* WidgetPlanTimeline.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -456,6 +466,7 @@
 				2B3BCD8FDA4AF9CC176FD5B3 /* WeatherProvider.swift in Sources */,
 				94AA67DD30112AD879A82B0D /* WeatherProviderPreferenceStore.swift in Sources */,
 				F13D88994BEAC60771E91CF3 /* WeatherService.swift in Sources */,
+				532BDF5DB8B3312800284CAA /* WidgetPlanTimeline.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -470,7 +481,9 @@
 				3C42C63E632ECB58537295F2 /* PlanSnapshotTests.swift in Sources */,
 				AA6F940632F92416AFFFC8B6 /* RecommendedItemListTests.swift in Sources */,
 				4FD85921D5A86FCFC007E394 /* TemperaturePreferenceStoreTests.swift in Sources */,
+				A80E43AB809B82078D64FB0D /* TestSupport.swift in Sources */,
 				9EC7E38B451CD6C735537C9C /* WeatherServiceTests.swift in Sources */,
+				1990E75066E4B0103F9ED987 /* WidgetPlanTimelineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -492,6 +505,7 @@
 				370F16A39EACA66BCC35CE50 /* WeatherAttributionLabel.swift in Sources */,
 				0F6ACB7786E3B8609C683E57 /* WeatherOnlyPlanView.swift in Sources */,
 				B4C838347BB204CCB32E82C2 /* WeatherProvider.swift in Sources */,
+				7EE293A032EF4EF2C5449671 /* WidgetPlanTimeline.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

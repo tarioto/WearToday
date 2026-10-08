@@ -69,7 +69,7 @@ struct BackgroundPlanRefresher {
         // Likewise, don't replace a plan the app saved for today meanwhile with a less complete one.
         if let latest = loadSnapshot(),
            latest.generatedAt != savedSnapshot?.generatedAt,
-           calendar.isDate(latest.generatedAt, inSameDayAs: now()),
+           latest.isFromToday(now: now(), calendar: calendar),
            latest.recommendation != nil || recommendation == nil {
             return .supersededByApp
         }
@@ -102,7 +102,7 @@ struct BackgroundPlanRefresher {
     ///   generation failed) or still getting ready, refresh so the suggestions can be retried.
     private func hasCurrentSnapshot(_ snapshot: PlanSnapshot?, availability: RecommendationAvailability) -> Bool {
         guard let snapshot,
-              calendar.isDate(snapshot.generatedAt, inSameDayAs: now()) else { return false }
+              snapshot.isFromToday(now: now(), calendar: calendar) else { return false }
         if snapshot.recommendation != nil { return true }
         switch availability {
         case .unavailable(.deviceNotEligible), .unavailable(.appleIntelligenceNotEnabled):
