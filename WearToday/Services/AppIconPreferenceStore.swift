@@ -14,6 +14,15 @@ enum BuildIcon {
     case beta
     case standard
 
+    /// The alternate icon name, or nil for the primary icon.
+    /// Debug builds' primary icon is already the Dev Icon via ASSETCATALOG_COMPILER_APPICON_NAME.
+    var alternateIconName: String? {
+        switch self {
+        case .beta: AppIconPreferenceStore.betaIconName
+        case .dev, .standard: nil
+        }
+    }
+
     /// Alternate icons can't be loaded as images, so the picker shows exported thumbnails from the asset catalogue.
     var thumbnailName: String {
         switch self {
@@ -58,7 +67,7 @@ enum AppIconSelection: Hashable {
 /// Decides which home screen icon to show: the Icon Choice if there is one, otherwise the Build Icon for the Install Source.
 @MainActor
 final class AppIconPreferenceStore: ObservableObject {
-    static let betaIconName = "AppIcon-Beta"
+    nonisolated static let betaIconName = "AppIcon-Beta"
 
     @Published private(set) var selection: AppIconSelection
     /// What Default shows. Assumes the primary icon until the Install Source is known.
@@ -91,42 +100,40 @@ final class AppIconPreferenceStore: ObservableObject {
     /// Shows the Icon Choice or the Build Icon, leaving the icon alone when there's no choice and the Install Source is unknown.
     func applyAtLaunch() async {
         guard supportsAlternateIcons else { return }
-        await apply(selection)
+        let source = await resolveInstallSource()
+        switch selection {
+        case .theme(let icon):
+            await show(icon.alternateIconName)
+        case .default:
+            guard let source else { return }
+            await show(Self.buildIcon(for: source).alternateIconName)
+        }
     }
 
     /// Picking a Theme Icon saves it as the Icon Choice; picking Default clears it so the Build Icon shows.
     func select(_ newSelection: AppIconSelection) async {
         selection = newSelection
+        let source = await resolveInstallSource()
         switch newSelection {
-        case .default: saveIconChoice(nil)
-        case .theme(let icon): saveIconChoice(icon)
+        case .theme(let icon):
+            saveIconChoice(icon)
+            await show(icon.alternateIconName)
+        case .default:
+            saveIconChoice(nil)
+            // A Theme Icon mustn't stay after picking Default, so an unknown Install Source falls back to the primary icon.
+            await show(source.flatMap { Self.buildIcon(for: $0).alternateIconName })
         }
-        await apply(newSelection)
     }
 
-    private func apply(_ selection: AppIconSelection) async {
+    private func resolveInstallSource() async -> InstallSource? {
         let source = await installSource()
         if let source { buildIcon = Self.buildIcon(for: source) }
-
-        let desired: String?
-        switch selection {
-        case .theme(let icon):
-            desired = icon.alternateIconName
-        case .default:
-            guard let source else { return }
-            desired = Self.buildIconName(for: source)
-        }
-        guard currentAlternateIconName() != desired else { return }
-        await setAlternateIconName(desired)
+        return source
     }
 
-    /// The alternate icon name for the Build Icon, or nil for the primary icon.
-    /// Debug builds' primary icon is already the Dev Icon via ASSETCATALOG_COMPILER_APPICON_NAME.
-    private static func buildIconName(for source: InstallSource) -> String? {
-        switch source {
-        case .testFlight: betaIconName
-        case .appStore, .dev: nil
-        }
+    private func show(_ alternateIconName: String?) async {
+        guard currentAlternateIconName() != alternateIconName else { return }
+        await setAlternateIconName(alternateIconName)
     }
 
     private static func buildIcon(for source: InstallSource) -> BuildIcon {

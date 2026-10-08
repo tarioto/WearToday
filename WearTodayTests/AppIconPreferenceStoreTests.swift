@@ -130,6 +130,15 @@ struct AppIconPreferenceStoreTests {
         #expect(store.selection == .default)
     }
 
+    @Test func selectingDefaultWithAnUnknownInstallSourceResetsToThePrimaryIcon() async {
+        var setIcons: [String?] = []
+        let store = makeStore(iconChoice: .ocean, installSource: nil, currentIcon: ThemeIcon.ocean.alternateIconName) { setIcons.append($0) }
+
+        await store.select(.default)
+
+        #expect(setIcons == [nil])
+    }
+
     @Test func aLoadedIconChoiceIsTheSelectionWithoutSavingOrSettingAnything() {
         var savedChoices: [ThemeIcon?] = []
         var setIcons: [String?] = []
