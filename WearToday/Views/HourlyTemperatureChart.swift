@@ -22,7 +22,7 @@ struct HourlyTemperatureChart: View {
         return (minValue - padding)...(maxValue + padding)
     }
 
-    /// Only ensemble forecasts (Open-Meteo) have a min/max spread worth labelling.
+    /// True when the points carry an ensemble min/max spread (from Open-Meteo, including when layered onto Apple Weather).
     private var hasSpread: Bool {
         hourly.points.contains { $0.maxF > $0.minF }
     }

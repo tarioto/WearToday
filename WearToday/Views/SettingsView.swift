@@ -81,7 +81,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Weather Source")
                 } footer: {
-                    Text("Open-Meteo includes a forecast spread in the hourly chart. Apple Weather uses the same data as the Weather app.")
+                    Text("Apple Weather uses the same data as the Weather app. With either source, the hourly chart's shaded band shows the forecast spread from Open-Meteo's ensemble.")
                 }
 
                 Section("Temperature Unit") {
