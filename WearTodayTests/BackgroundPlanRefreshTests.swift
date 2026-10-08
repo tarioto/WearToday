@@ -71,15 +71,83 @@ struct BackgroundPlanRefreshTests {
         #expect(harness.published.isEmpty)
     }
 
-    @Test func onDeviceModelFailureLeavesExistingSnapshotUnpublished() async {
-        let harness = Harness(now: date("2026-10-08T06:00:00-07:00"))
+    @Test func onDeviceModelFailurePublishesWeatherOnlySnapshot() async {
+        let now = date("2026-10-08T06:00:00-07:00")
+        let harness = Harness(now: now)
         harness.snapshot = .generated(at: date("2026-10-07T18:00:00-07:00"))
         harness.selection = .custom(name: "Seattle", latitude: 47.6, longitude: -122.3)
         await harness.fetcher.failRecommendation()
 
         let outcome = await harness.refresher.refreshIfStale()
 
-        #expect(outcome == .failed)
+        #expect(outcome == .refreshedWeatherOnly)
+        #expect(harness.published.count == 1)
+        #expect(harness.published.first?.recommendation == nil)
+        #expect(harness.published.first?.generatedAt == now)
+    }
+
+    @Test(arguments: [
+        RecommendationState.UnavailableReason.deviceNotEligible,
+        .appleIntelligenceNotEnabled,
+        .modelNotReady,
+    ])
+    func unavailableModelPublishesWeatherOnlySnapshotWithoutAttemptingGeneration(reason: RecommendationState.UnavailableReason) async {
+        let harness = Harness(now: date("2026-10-08T06:00:00-07:00"))
+        harness.snapshot = .generated(at: date("2026-10-07T18:00:00-07:00"))
+        harness.selection = .custom(name: "Seattle", latitude: 47.6, longitude: -122.3)
+        await harness.fetcher.makeUnavailable(reason)
+
+        let outcome = await harness.refresher.refreshIfStale()
+
+        #expect(outcome == .refreshedWeatherOnly)
+        #expect(await harness.fetcher.recommendationRequestCount == 0)
+        #expect(harness.published.count == 1)
+        #expect(harness.published.first?.recommendation == nil)
+    }
+
+    @Test func todaysWeatherOnlySnapshotRetriesTheRecommendationOnceTheModelIsAvailable() async {
+        // e.g. this morning's generation failed, or the model was still downloading.
+        let harness = Harness(now: date("2026-10-08T09:00:00-07:00"))
+        harness.snapshot = .weatherOnly(at: date("2026-10-08T06:00:00-07:00"))
+        harness.selection = .custom(name: "Seattle", latitude: 47.6, longitude: -122.3)
+
+        let outcome = await harness.refresher.refreshIfStale()
+
+        #expect(outcome == .refreshed)
+        #expect(await harness.fetcher.recommendationRequestCount == 1)
+        #expect(harness.published.count == 1)
+        #expect(harness.published.first?.recommendation != nil)
+    }
+
+    @Test func todaysWeatherOnlySnapshotIsRefreshedWhileTheModelIsNotReadyYet() async {
+        let now = date("2026-10-08T09:00:00-07:00")
+        let harness = Harness(now: now)
+        harness.snapshot = .weatherOnly(at: date("2026-10-08T06:00:00-07:00"))
+        harness.selection = .custom(name: "Seattle", latitude: 47.6, longitude: -122.3)
+        await harness.fetcher.makeUnavailable(.modelNotReady)
+
+        let outcome = await harness.refresher.refreshIfStale()
+
+        #expect(outcome == .refreshedWeatherOnly)
+        #expect(await harness.fetcher.weatherRequests.count == 1)
+        #expect(await harness.fetcher.recommendationRequestCount == 0)
+        #expect(harness.published.map(\.generatedAt) == [now])
+    }
+
+    @Test(arguments: [
+        RecommendationState.UnavailableReason.deviceNotEligible,
+        .appleIntelligenceNotEnabled,
+    ])
+    func todaysWeatherOnlySnapshotIsFinalWhenTheModelIsPermanentlyUnavailable(reason: RecommendationState.UnavailableReason) async {
+        let harness = Harness(now: date("2026-10-08T09:00:00-07:00"))
+        harness.snapshot = .weatherOnly(at: date("2026-10-08T06:00:00-07:00"))
+        harness.selection = .custom(name: "Seattle", latitude: 47.6, longitude: -122.3)
+        await harness.fetcher.makeUnavailable(reason)
+
+        let outcome = await harness.refresher.refreshIfStale()
+
+        #expect(outcome == .alreadyCurrent)
+        #expect(await harness.fetcher.weatherRequests.isEmpty)
         #expect(harness.published.isEmpty)
     }
 
@@ -104,18 +172,39 @@ struct BackgroundPlanRefreshTests {
         #expect(await harness.fetcher.weatherRequests.isEmpty)
     }
 
-    @Test func nextRequestIsJustAfterTheNextLocalMidnight() {
+    @Test func nextRequestIsJustAfterTheNextLocalMidnight() async {
         let harness = Harness(now: date("2026-10-08T15:00:00-07:00"))
         harness.snapshot = .generated(at: date("2026-10-08T07:00:00-07:00"))
 
-        #expect(harness.refresher.nextRequestDate() == date("2026-10-09T00:05:00-07:00"))
+        #expect(await harness.refresher.nextRequestDate() == date("2026-10-09T00:05:00-07:00"))
     }
 
-    @Test func nextRequestRetriesWithinTheHourWhileThePlanIsStillStale() {
+    @Test(arguments: [
+        RecommendationState.UnavailableReason.deviceNotEligible,
+        .appleIntelligenceNotEnabled,
+    ])
+    func nextRequestWaitsForMidnightWhenTodaysWeatherOnlyPlanCantGetSuggestions(reason: RecommendationState.UnavailableReason) async {
+        let harness = Harness(now: date("2026-10-08T15:00:00-07:00"))
+        harness.snapshot = .weatherOnly(at: date("2026-10-08T07:00:00-07:00"))
+        await harness.fetcher.makeUnavailable(reason)
+
+        #expect(await harness.refresher.nextRequestDate() == date("2026-10-09T00:05:00-07:00"))
+    }
+
+    @Test(arguments: [RecommendationAvailability.available, .unavailable(.modelNotReady)])
+    func nextRequestRetriesWithinTheHourWhileTodaysSuggestionsAreStillMissing(availability: RecommendationAvailability) async {
+        let harness = Harness(now: date("2026-10-08T15:00:00-07:00"))
+        harness.snapshot = .weatherOnly(at: date("2026-10-08T07:00:00-07:00"))
+        await harness.fetcher.setAvailability(availability)
+
+        #expect(await harness.refresher.nextRequestDate() == date("2026-10-08T16:00:00-07:00"))
+    }
+
+    @Test func nextRequestRetriesWithinTheHourWhileThePlanIsStillStale() async {
         let harness = Harness(now: date("2026-10-08T06:00:00-07:00"))
         harness.snapshot = .generated(at: date("2026-10-07T18:00:00-07:00"))
 
-        #expect(harness.refresher.nextRequestDate() == date("2026-10-08T07:00:00-07:00"))
+        #expect(await harness.refresher.nextRequestDate() == date("2026-10-08T07:00:00-07:00"))
     }
 }
 
@@ -168,11 +257,19 @@ private struct StubFailure: Error {}
 
 private actor RecordingPlanFetcher: DayPlanFetching {
     private(set) var weatherRequests: [WeatherRequest] = []
+    private(set) var recommendationRequestCount = 0
+    var availability: RecommendationAvailability = .available
     var weatherResult: Result<DailyWeather, StubFailure> = .success(.placeholder)
     var recommendationResult: Result<OutfitRecommendation, StubFailure> = .success(.placeholder)
 
     func failWeather() { weatherResult = .failure(StubFailure()) }
     func failRecommendation() { recommendationResult = .failure(StubFailure()) }
+    func makeUnavailable(_ reason: RecommendationState.UnavailableReason) { availability = .unavailable(reason) }
+    func setAvailability(_ availability: RecommendationAvailability) { self.availability = availability }
+
+    func recommendationAvailability() async -> RecommendationAvailability {
+        availability
+    }
 
     func fetchWeather(for coordinate: CLLocationCoordinate2D, from provider: WeatherProvider) async throws -> (DailyWeather, HourlyForecast?) {
         weatherRequests.append(WeatherRequest(latitude: coordinate.latitude, longitude: coordinate.longitude, provider: provider))
@@ -180,12 +277,17 @@ private actor RecordingPlanFetcher: DayPlanFetching {
     }
 
     func recommendation(for weather: DailyWeather) async throws -> OutfitRecommendation {
-        try recommendationResult.get()
+        recommendationRequestCount += 1
+        return try recommendationResult.get()
     }
 }
 
 private extension PlanSnapshot {
     static func generated(at date: Date) -> PlanSnapshot {
         PlanSnapshot(weather: .placeholder, recommendation: .placeholder, generatedAt: date, provider: .apple)
+    }
+
+    static func weatherOnly(at date: Date) -> PlanSnapshot {
+        PlanSnapshot(weather: .placeholder, recommendation: nil, generatedAt: date, provider: .apple)
     }
 }

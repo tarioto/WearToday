@@ -6,13 +6,15 @@ import Foundation
 @MainActor
 struct BackgroundPlanRefresher {
     enum Outcome: Equatable {
-        /// The saved plan was generated today (device time zone); nothing fetched.
+        /// The saved plan is final for today (see `hasCurrentSnapshot`); nothing fetched.
         case alreadyCurrent
         /// A new plan was fetched and published.
         case refreshed
+        /// Today's weather was published without outfit suggestions (model unavailable or failed).
+        case refreshedWeatherOnly
         /// Current Location is selected but there's no known fix; nothing fetched.
         case skippedNoCoordinate
-        /// Weather or the on-device recommendation failed; the saved plan was left as is.
+        /// The weather fetch failed; the saved plan was left as is.
         case failed
     }
 
@@ -32,7 +34,8 @@ struct BackgroundPlanRefresher {
     static let minutesAfterMidnight = 5
 
     func refreshIfStale() async -> Outcome {
-        guard !hasCurrentSnapshot else { return .alreadyCurrent }
+        let availability = await fetcher.recommendationAvailability()
+        guard !hasCurrentSnapshot(availability: availability) else { return .alreadyCurrent }
 
         let coordinate: CLLocationCoordinate2D
         switch selection() {
@@ -44,23 +47,42 @@ struct BackgroundPlanRefresher {
         }
 
         let provider = provider()
-        guard let (weather, _) = try? await fetcher.fetchWeather(for: coordinate, from: provider),
-              let recommendation = try? await fetcher.recommendation(for: weather) else { return .failed }
+        guard let (weather, _) = try? await fetcher.fetchWeather(for: coordinate, from: provider) else { return .failed }
+        let recommendation: OutfitRecommendation? = if availability == .available {
+            try? await fetcher.recommendation(for: weather)
+        } else {
+            nil
+        }
         publish(PlanSnapshot(weather: weather, recommendation: recommendation, generatedAt: now(), provider: provider))
-        return .refreshed
+        return recommendation == nil ? .refreshedWeatherOnly : .refreshed
     }
 
     /// When the next background refresh should run: just after the next local midnight, or
-    /// sooner if the saved plan is still from an earlier day (e.g. this run failed).
-    func nextRequestDate() -> Date {
+    /// within the hour while the saved plan still needs a refresh (see `hasCurrentSnapshot`),
+    /// e.g. because this run failed or today's suggestions are still missing.
+    func nextRequestDate() async -> Date {
+        let availability = await fetcher.recommendationAvailability()
         let now = now()
-        guard hasCurrentSnapshot else { return now.addingTimeInterval(Self.staleRetryInterval) }
+        guard hasCurrentSnapshot(availability: availability) else { return now.addingTimeInterval(Self.staleRetryInterval) }
         let tomorrow = calendar.date(byAdding: .day, value: 1, to: now)!
         return calendar.date(byAdding: .minute, value: Self.minutesAfterMidnight, to: calendar.startOfDay(for: tomorrow))!
     }
 
-    private var hasCurrentSnapshot: Bool {
-        guard let snapshot = loadSnapshot() else { return false }
-        return calendar.isDate(snapshot.generatedAt, inSameDayAs: now())
+    /// Whether the saved plan is final for today, so no refresh is needed before midnight:
+    /// - none saved, or generated on an earlier day (device time zone): not current;
+    /// - from today with outfit suggestions: current;
+    /// - from today, weather only: current only when the model can't make suggestions on this
+    ///   device today (not eligible, Apple Intelligence off). If it's available again (an earlier
+    ///   generation failed) or still getting ready, refresh so the suggestions can be retried.
+    private func hasCurrentSnapshot(availability: RecommendationAvailability) -> Bool {
+        guard let snapshot = loadSnapshot(),
+              calendar.isDate(snapshot.generatedAt, inSameDayAs: now()) else { return false }
+        if snapshot.recommendation != nil { return true }
+        switch availability {
+        case .unavailable(.deviceNotEligible), .unavailable(.appleIntelligenceNotEnabled):
+            return true
+        case .available, .unavailable(.modelNotReady):
+            return false
+        }
     }
 }
