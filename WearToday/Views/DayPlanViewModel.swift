@@ -14,30 +14,28 @@ enum LoadState {
 final class DayPlanViewModel: ObservableObject {
     @Published private(set) var state: LoadState = .idle
 
-    private let locationManager: LocationManager
+    private let locationManager: LocationProviding
     private let locationPreference: LocationPreferenceStore
     private let providerPreference: WeatherProviderPreferenceStore
-    private let weatherService = WeatherService()
-    private let hourlyForecastService = HourlyForecastService()
-    private let appleWeatherService = AppleWeatherService()
-    private let outfitAdvisor = OutfitAdvisor()
+    private let fetcher: DayPlanFetching
     private var hasStarted = false
     private var lastCoordinate: CLLocationCoordinate2D?
     private var cancellables = Set<AnyCancellable>()
 
-    init(locationManager: LocationManager, locationPreference: LocationPreferenceStore, providerPreference: WeatherProviderPreferenceStore) {
+    init(locationManager: LocationProviding, locationPreference: LocationPreferenceStore, providerPreference: WeatherProviderPreferenceStore, fetcher: DayPlanFetching = DayPlanFetcher()) {
         self.locationManager = locationManager
         self.locationPreference = locationPreference
         self.providerPreference = providerPreference
+        self.fetcher = fetcher
 
-        locationManager.$coordinate
+        locationManager.coordinatePublisher
             .compactMap { $0 }
             .sink { [weak self] coordinate in
                 self?.handleGPSCoordinate(coordinate)
             }
             .store(in: &cancellables)
 
-        locationManager.$errorMessage
+        locationManager.errorMessagePublisher
             .compactMap { $0 }
             .sink { [weak self] message in
                 self?.handleGPSError(message)
@@ -79,6 +77,8 @@ final class DayPlanViewModel: ObservableObject {
             if let lastCoordinate {
                 await loadPlan(for: lastCoordinate)
             } else {
+                // Leave .failed so handleGPSCoordinate loads the next fix.
+                state = .idle
                 locationManager.requestLocation()
             }
         case .custom(_, let latitude, let longitude):
@@ -119,31 +119,15 @@ final class DayPlanViewModel: ObservableObject {
         // Read here (not in the provider sink, which fires before @Published updates).
         let provider = providerPreference.provider
         do {
-            let (weather, hourly) = try await fetchWeather(for: coordinate, from: provider)
+            let (weather, hourly) = try await fetcher.fetchWeather(for: coordinate, from: provider)
             state = .loadingRecommendation
-            let recommendation = try await outfitAdvisor.recommendation(for: weather)
+            let recommendation = try await fetcher.recommendation(for: weather)
             state = .loaded(weather: weather, recommendation: recommendation, hourly: hourly, provider: provider)
             lastCoordinate = coordinate
             SharedStore.save(PlanSnapshot(weather: weather, recommendation: recommendation, generatedAt: .now, provider: provider))
             WidgetCenter.shared.reloadAllTimelines()
         } catch {
             state = .failed(error.localizedDescription)
-        }
-    }
-
-    private func fetchWeather(for coordinate: CLLocationCoordinate2D, from provider: WeatherProvider) async throws -> (DailyWeather, HourlyForecast?) {
-        switch provider {
-        case .openMeteo:
-            async let hourlyTask: HourlyForecast? = try? hourlyForecastService.fetchHourlyForecast(for: coordinate)
-            let weather = try await weatherService.fetchTodayForecast(for: coordinate)
-            return (weather, await hourlyTask)
-        case .apple:
-            // WeatherKit has no hourly uncertainty, so borrow Open-Meteo's ensemble spread
-            // for the chart's band. If that request fails, the chart just shows the line.
-            async let ensembleTask: HourlyForecast? = try? hourlyForecastService.fetchHourlyForecast(for: coordinate, includePrecipitation: false)
-            let forecast = try await appleWeatherService.fetchForecast(for: coordinate)
-            guard let ensemble = await ensembleTask else { return (forecast.daily, forecast.hourly) }
-            return (forecast.daily, forecast.hourly.applyingSpread(from: ensemble))
         }
     }
 }

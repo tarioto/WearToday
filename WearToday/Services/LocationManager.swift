@@ -1,6 +1,14 @@
 import CoreLocation
 import Combine
 
+/// What `DayPlanViewModel` needs from a location source, so tests can drive it without CoreLocation.
+@MainActor
+protocol LocationProviding: AnyObject {
+    var coordinatePublisher: AnyPublisher<CLLocationCoordinate2D?, Never> { get }
+    var errorMessagePublisher: AnyPublisher<String?, Never> { get }
+    func requestLocation()
+}
+
 @MainActor
 final class LocationManager: NSObject, ObservableObject {
     @Published var coordinate: CLLocationCoordinate2D?
@@ -33,6 +41,11 @@ final class LocationManager: NSObject, ObservableObject {
             break
         }
     }
+}
+
+extension LocationManager: LocationProviding {
+    var coordinatePublisher: AnyPublisher<CLLocationCoordinate2D?, Never> { $coordinate.eraseToAnyPublisher() }
+    var errorMessagePublisher: AnyPublisher<String?, Never> { $errorMessage.eraseToAnyPublisher() }
 }
 
 extension LocationManager: CLLocationManagerDelegate {
