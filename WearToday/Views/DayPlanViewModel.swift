@@ -21,6 +21,7 @@ final class DayPlanViewModel: ObservableObject {
     private let publishSnapshot: @MainActor (PlanSnapshot) -> Void
     private var hasStarted = false
     /// Last GPS fix; only Current Location refreshes reuse it, so custom-city loads never set it.
+    /// Cleared on every selection change so returning to Current Location waits for a fresh fix.
     private var lastCoordinate: CLLocationCoordinate2D?
     /// The only load allowed to update `state`; starting another cancels it.
     private var loadTask: Task<Void, Never>?
@@ -114,6 +115,7 @@ final class DayPlanViewModel: ObservableObject {
     private func applySelection(_ selection: LocationSelection) {
         hasStarted = true
         state = .idle
+        lastCoordinate = nil
         beginLoading(for: selection)
     }
 

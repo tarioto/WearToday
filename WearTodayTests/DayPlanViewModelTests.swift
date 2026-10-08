@@ -87,6 +87,38 @@ struct DayPlanViewModelTests {
         #expect(location.locationRequestCount == requestsBeforeRefresh)
     }
 
+    @Test func refreshAfterReturningToCurrentLocationRequestsNewFixInsteadOfReloadingOldOne() async throws {
+        let location = FakeLocationProvider()
+        let fetcher = FakeDayPlanFetcher()
+        let locationPreference = LocationPreferenceStore()
+        locationPreference.selection = .currentLocation
+        var snapshots: [PlanSnapshot] = []
+        let viewModel = DayPlanViewModel(
+            locationManager: location,
+            locationPreference: locationPreference,
+            providerPreference: WeatherProviderPreferenceStore(),
+            fetcher: fetcher,
+            publishSnapshot: { snapshots.append($0) }
+        )
+
+        viewModel.start()
+        location.deliver(CLLocationCoordinate2D(latitude: 47.6, longitude: -122.3))
+        try await waitUntil { viewModel.state.isLoaded }
+
+        locationPreference.selection = .custom(name: "City A", latitude: 10, longitude: 10)
+        try await waitUntil { viewModel.state.isLoaded }
+
+        locationPreference.selection = .currentLocation
+        let requestsBeforeRefresh = location.locationRequestCount
+
+        await viewModel.refresh()
+
+        let requested = await fetcher.requestedCoordinates
+        #expect(requested.map(\.latitude) == [47.6, 10])
+        #expect(location.locationRequestCount == requestsBeforeRefresh + 1)
+        #expect(snapshots.count == 2)
+    }
+
     @Test func refreshForCustomCityReloadsThatCity() async throws {
         let fetcher = FakeDayPlanFetcher()
         let locationPreference = LocationPreferenceStore()
