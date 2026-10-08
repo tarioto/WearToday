@@ -26,6 +26,9 @@ targets:
     dependencies:
       - target: WearTodayWidgetsExtension
         embed: true
+    scheme:
+      testTargets:
+        - WearTodayTests
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.timarioto.WearToday
@@ -61,6 +64,21 @@ targets:
         INFOPLIST_FILE: WearTodayWidgets/Info.plist
         CODE_SIGN_ENTITLEMENTS: WearTodayWidgets/WearTodayWidgets.entitlements
         SKIP_INSTALL: YES
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: Apple Development
+        PROVISIONING_PROFILE_SPECIFIER: ""
+  WearTodayTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: WearTodayTests
+    dependencies:
+      - target: WearToday
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.timarioto.WearTodayTests
+        GENERATE_INFOPLIST_FILE: YES
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: Apple Development
         PROVISIONING_PROFILE_SPECIFIER: ""
