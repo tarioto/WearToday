@@ -18,15 +18,19 @@ final class DayPlanViewModel: ObservableObject {
     private let locationPreference: LocationPreferenceStore
     private let providerPreference: WeatherProviderPreferenceStore
     private let fetcher: DayPlanFetching
+    private let publishSnapshot: @MainActor (PlanSnapshot) -> Void
     private var hasStarted = false
     private var lastCoordinate: CLLocationCoordinate2D?
+    /// The only load allowed to update `state`; starting another cancels it.
+    private var loadTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
 
-    init(locationManager: LocationProviding, locationPreference: LocationPreferenceStore, providerPreference: WeatherProviderPreferenceStore, fetcher: DayPlanFetching = DayPlanFetcher()) {
+    init(locationManager: LocationProviding, locationPreference: LocationPreferenceStore, providerPreference: WeatherProviderPreferenceStore, fetcher: DayPlanFetching = DayPlanFetcher(), publishSnapshot: @escaping @MainActor (PlanSnapshot) -> Void = DayPlanViewModel.saveAndReloadWidgets) {
         self.locationManager = locationManager
         self.locationPreference = locationPreference
         self.providerPreference = providerPreference
         self.fetcher = fetcher
+        self.publishSnapshot = publishSnapshot
 
         locationManager.coordinatePublisher
             .compactMap { $0 }
@@ -75,25 +79,35 @@ final class DayPlanViewModel: ObservableObject {
         switch locationPreference.selection {
         case .currentLocation:
             if let lastCoordinate {
-                await loadPlan(for: lastCoordinate)
+                await startLoad(for: lastCoordinate).value
             } else {
                 // Leave .failed so handleGPSCoordinate loads the next fix.
+                loadTask?.cancel()
                 state = .idle
                 locationManager.requestLocation()
             }
         case .custom(_, let latitude, let longitude):
-            await loadPlan(for: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
+            await startLoad(for: CLLocationCoordinate2D(latitude: latitude, longitude: longitude)).value
         }
     }
 
     private func beginLoading(for selection: LocationSelection) {
         switch selection {
         case .currentLocation:
+            loadTask?.cancel()
             locationManager.requestLocation()
         case .custom(_, let latitude, let longitude):
-            let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-            Task { await loadPlan(for: coordinate) }
+            startLoad(for: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
         }
+    }
+
+    /// Supersedes any in-flight load so only the newest one can write `state` or the snapshot.
+    @discardableResult
+    private func startLoad(for coordinate: CLLocationCoordinate2D) -> Task<Void, Never> {
+        loadTask?.cancel()
+        let task = Task { await loadPlan(for: coordinate) }
+        loadTask = task
+        return task
     }
 
     private func applySelection(_ selection: LocationSelection) {
@@ -106,7 +120,7 @@ final class DayPlanViewModel: ObservableObject {
         guard case .currentLocation = locationPreference.selection else { return }
         lastCoordinate = coordinate
         guard case .idle = state else { return }
-        Task { await loadPlan(for: coordinate) }
+        startLoad(for: coordinate)
     }
 
     private func handleGPSError(_ message: String) {
@@ -120,14 +134,22 @@ final class DayPlanViewModel: ObservableObject {
         let provider = providerPreference.provider
         do {
             let (weather, hourly) = try await fetcher.fetchWeather(for: coordinate, from: provider)
+            guard !Task.isCancelled else { return }
             state = .loadingRecommendation
             let recommendation = try await fetcher.recommendation(for: weather)
+            guard !Task.isCancelled else { return }
             state = .loaded(weather: weather, recommendation: recommendation, hourly: hourly, provider: provider)
             lastCoordinate = coordinate
-            SharedStore.save(PlanSnapshot(weather: weather, recommendation: recommendation, generatedAt: .now, provider: provider))
-            WidgetCenter.shared.reloadAllTimelines()
+            publishSnapshot(PlanSnapshot(weather: weather, recommendation: recommendation, generatedAt: .now, provider: provider))
         } catch {
+            guard !Task.isCancelled else { return }
             state = .failed(error.localizedDescription)
         }
+    }
+
+    /// Default snapshot sink: shares the plan with the widget and refreshes its timelines.
+    static func saveAndReloadWidgets(_ snapshot: PlanSnapshot) {
+        SharedStore.save(snapshot)
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }

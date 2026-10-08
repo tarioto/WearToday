@@ -14,7 +14,8 @@ struct DayPlanViewModelTests {
             locationManager: location,
             locationPreference: locationPreference,
             providerPreference: WeatherProviderPreferenceStore(),
-            fetcher: fetcher
+            fetcher: fetcher,
+            publishSnapshot: { _ in }
         )
 
         viewModel.start()
@@ -30,6 +31,89 @@ struct DayPlanViewModelTests {
         #expect(requested.map(\.latitude) == [47.6])
         #expect(requested.map(\.longitude) == [-122.3])
     }
+
+    @Test func slowLoadForPreviousCityDoesNotOverwriteNewerCity() async throws {
+        let fetcher = GatedDayPlanFetcher()
+        let locationPreference = LocationPreferenceStore()
+        locationPreference.selection = .custom(name: "City A", latitude: 10, longitude: 10)
+        var snapshots: [PlanSnapshot] = []
+        let viewModel = DayPlanViewModel(
+            locationManager: FakeLocationProvider(),
+            locationPreference: locationPreference,
+            providerPreference: WeatherProviderPreferenceStore(),
+            fetcher: fetcher,
+            publishSnapshot: { snapshots.append($0) }
+        )
+
+        let loadA = Task { await viewModel.refresh() }
+        try await waitUntil { await fetcher.isWaiting(onLatitude: 10) }
+
+        locationPreference.selection = .custom(name: "City B", latitude: 20, longitude: 20)
+        try await waitUntil { await fetcher.isWaiting(onLatitude: 20) }
+
+        await fetcher.complete(latitude: 20, with: .success(.forecast(high: 20)))
+        try await waitUntil { viewModel.state.loadedHigh == 20 }
+
+        await fetcher.complete(latitude: 10, with: .success(.forecast(high: 10)))
+        await loadA.value
+
+        #expect(viewModel.state.loadedHigh == 20)
+        #expect(snapshots.map(\.weather.highTemperatureF) == [20])
+    }
+
+    @Test func supersededLoadThatFailsDoesNotReplaceNewerPlan() async throws {
+        let fetcher = GatedDayPlanFetcher()
+        let locationPreference = LocationPreferenceStore()
+        locationPreference.selection = .custom(name: "City A", latitude: 10, longitude: 10)
+        let viewModel = DayPlanViewModel(
+            locationManager: FakeLocationProvider(),
+            locationPreference: locationPreference,
+            providerPreference: WeatherProviderPreferenceStore(),
+            fetcher: fetcher,
+            publishSnapshot: { _ in }
+        )
+
+        let loadA = Task { await viewModel.refresh() }
+        try await waitUntil { await fetcher.isWaiting(onLatitude: 10) }
+
+        locationPreference.selection = .custom(name: "City B", latitude: 20, longitude: 20)
+        try await waitUntil { await fetcher.isWaiting(onLatitude: 20) }
+
+        await fetcher.complete(latitude: 20, with: .success(.forecast(high: 20)))
+        try await waitUntil { viewModel.state.loadedHigh == 20 }
+
+        await fetcher.complete(latitude: 10, with: .failure(FakeFetchError()))
+        await loadA.value
+
+        #expect(viewModel.state.loadedHigh == 20)
+    }
+
+    @Test func pullToRefreshFinishesOnlyWhenTheRefreshedLoadFinishes() async throws {
+        let fetcher = GatedDayPlanFetcher()
+        let locationPreference = LocationPreferenceStore()
+        locationPreference.selection = .custom(name: "City A", latitude: 10, longitude: 10)
+        let viewModel = DayPlanViewModel(
+            locationManager: FakeLocationProvider(),
+            locationPreference: locationPreference,
+            providerPreference: WeatherProviderPreferenceStore(),
+            fetcher: fetcher,
+            publishSnapshot: { _ in }
+        )
+
+        var refreshFinished = false
+        let refresh = Task {
+            await viewModel.refresh()
+            refreshFinished = true
+        }
+        try await waitUntil { await fetcher.isWaiting(onLatitude: 10) }
+        #expect(!refreshFinished)
+
+        await fetcher.complete(latitude: 10, with: .success(.forecast(high: 10)))
+        await refresh.value
+
+        #expect(refreshFinished)
+        #expect(viewModel.state.loadedHigh == 10)
+    }
 }
 
 // MARK: - Helpers
@@ -44,12 +128,36 @@ private extension LoadState {
         if case .loaded = self { return true }
         return false
     }
+
+    var loadedHigh: Double? {
+        if case .loaded(let weather, _, _, _) = self { return weather.highTemperatureF }
+        return nil
+    }
+}
+
+private extension DailyWeather {
+    static func forecast(high: Double) -> DailyWeather {
+        DailyWeather(
+            date: .now,
+            highTemperatureF: high,
+            lowTemperatureF: high - 10,
+            precipitationProbability: 0,
+            uvIndex: 0,
+            windSpeedMph: 0,
+            conditionCode: 0,
+            conditionDescription: "Clear"
+        )
+    }
+}
+
+private struct FakeFetchError: LocalizedError {
+    var errorDescription: String? { "Stale request failed" }
 }
 
 @MainActor
-private func waitUntil(timeout: Duration = .seconds(2), _ condition: () -> Bool) async throws {
+private func waitUntil(timeout: Duration = .seconds(2), _ condition: () async -> Bool) async throws {
     let deadline = ContinuousClock.now + timeout
-    while !condition() {
+    while !(await condition()) {
         guard ContinuousClock.now < deadline else {
             Issue.record("Timed out waiting for condition")
             return
@@ -85,6 +193,30 @@ private actor FakeDayPlanFetcher: DayPlanFetching {
     func fetchWeather(for coordinate: CLLocationCoordinate2D, from provider: WeatherProvider) async throws -> (DailyWeather, HourlyForecast?) {
         requestedCoordinates.append(coordinate)
         return (.placeholder, nil)
+    }
+
+    func recommendation(for weather: DailyWeather) async throws -> OutfitRecommendation {
+        .placeholder
+    }
+}
+
+/// Holds each weather request until the test completes it, so tests control completion order.
+private actor GatedDayPlanFetcher: DayPlanFetching {
+    private var pending: [Double: CheckedContinuation<DailyWeather, Error>] = [:]
+
+    func isWaiting(onLatitude latitude: Double) -> Bool {
+        pending[latitude] != nil
+    }
+
+    func complete(latitude: Double, with result: Result<DailyWeather, Error>) {
+        pending.removeValue(forKey: latitude)?.resume(with: result)
+    }
+
+    func fetchWeather(for coordinate: CLLocationCoordinate2D, from provider: WeatherProvider) async throws -> (DailyWeather, HourlyForecast?) {
+        let weather = try await withCheckedThrowingContinuation { continuation in
+            pending[coordinate.latitude] = continuation
+        }
+        return (weather, nil)
     }
 
     func recommendation(for weather: DailyWeather) async throws -> OutfitRecommendation {
