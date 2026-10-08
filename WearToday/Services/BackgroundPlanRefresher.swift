@@ -16,6 +16,9 @@ struct BackgroundPlanRefresher {
         case skippedNoCoordinate
         /// The weather fetch failed; the saved plan was left as is.
         case failed
+        /// While this run was fetching, the app changed the city or provider, or saved a plan
+        /// for today that is at least as complete; nothing published so the app's plan stays.
+        case supersededByApp
     }
 
     let fetcher: DayPlanFetching
@@ -35,10 +38,12 @@ struct BackgroundPlanRefresher {
 
     func refreshIfStale() async -> Outcome {
         let availability = await fetcher.recommendationAvailability()
-        guard !hasCurrentSnapshot(availability: availability) else { return .alreadyCurrent }
+        let savedSnapshot = loadSnapshot()
+        guard !hasCurrentSnapshot(savedSnapshot, availability: availability) else { return .alreadyCurrent }
 
+        let selection = selection()
         let coordinate: CLLocationCoordinate2D
-        switch selection() {
+        switch selection {
         case .custom(_, let latitude, let longitude):
             coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
         case .currentLocation:
@@ -53,6 +58,16 @@ struct BackgroundPlanRefresher {
         } else {
             nil
         }
+        // The user may have opened the app and loaded a plan for another city or provider while
+        // we were fetching; publishing now would overwrite it with this older request's plan.
+        guard self.selection() == selection, self.provider() == provider else { return .supersededByApp }
+        // Likewise, don't replace a plan the app saved for today meanwhile with a less complete one.
+        if let latest = loadSnapshot(),
+           latest.generatedAt != savedSnapshot?.generatedAt,
+           calendar.isDate(latest.generatedAt, inSameDayAs: now()),
+           latest.recommendation != nil || recommendation == nil {
+            return .supersededByApp
+        }
         publish(PlanSnapshot(weather: weather, recommendation: recommendation, generatedAt: now(), provider: provider))
         return recommendation == nil ? .refreshedWeatherOnly : .refreshed
     }
@@ -63,7 +78,7 @@ struct BackgroundPlanRefresher {
     func nextRequestDate() async -> Date {
         let availability = await fetcher.recommendationAvailability()
         let now = now()
-        guard hasCurrentSnapshot(availability: availability) else { return now.addingTimeInterval(Self.staleRetryInterval) }
+        guard hasCurrentSnapshot(loadSnapshot(), availability: availability) else { return now.addingTimeInterval(Self.staleRetryInterval) }
         let tomorrow = calendar.date(byAdding: .day, value: 1, to: now)!
         return calendar.date(byAdding: .minute, value: Self.minutesAfterMidnight, to: calendar.startOfDay(for: tomorrow))!
     }
@@ -74,8 +89,8 @@ struct BackgroundPlanRefresher {
     /// - from today, weather only: current only when the model can't make suggestions on this
     ///   device today (not eligible, Apple Intelligence off). If it's available again (an earlier
     ///   generation failed) or still getting ready, refresh so the suggestions can be retried.
-    private func hasCurrentSnapshot(availability: RecommendationAvailability) -> Bool {
-        guard let snapshot = loadSnapshot(),
+    private func hasCurrentSnapshot(_ snapshot: PlanSnapshot?, availability: RecommendationAvailability) -> Bool {
+        guard let snapshot,
               calendar.isDate(snapshot.generatedAt, inSameDayAs: now()) else { return false }
         if snapshot.recommendation != nil { return true }
         switch availability {

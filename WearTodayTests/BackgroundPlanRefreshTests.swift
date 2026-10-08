@@ -172,6 +172,51 @@ struct BackgroundPlanRefreshTests {
         #expect(await harness.fetcher.weatherRequests.isEmpty)
     }
 
+    @Test func selectionChangedInTheAppDuringTheFetchIsNotOverwritten() async {
+        let harness = Harness(now: date("2026-10-08T06:00:00-07:00"))
+        harness.snapshot = .generated(at: date("2026-10-07T18:00:00-07:00"))
+        harness.selection = .custom(name: "Seattle", latitude: 47.6, longitude: -122.3)
+        await harness.fetcher.duringWeatherFetch { @MainActor in
+            harness.selection = .custom(name: "Tokyo", latitude: 35.7, longitude: 139.7)
+        }
+
+        let outcome = await harness.refresher.refreshIfStale()
+
+        #expect(outcome == .supersededByApp)
+        #expect(harness.published.isEmpty)
+    }
+
+    @Test func providerChangedInTheAppDuringTheFetchIsNotOverwritten() async {
+        let harness = Harness(now: date("2026-10-08T06:00:00-07:00"))
+        harness.snapshot = .generated(at: date("2026-10-07T18:00:00-07:00"))
+        harness.selection = .custom(name: "Seattle", latitude: 47.6, longitude: -122.3)
+        harness.provider = .openMeteo
+        await harness.fetcher.duringWeatherFetch { @MainActor in
+            harness.provider = .apple
+        }
+
+        let outcome = await harness.refresher.refreshIfStale()
+
+        #expect(outcome == .supersededByApp)
+        #expect(harness.published.isEmpty)
+    }
+
+    @Test func todaysFullPlanSavedByTheAppDuringTheFetchIsNotReplacedWithWeatherOnly() async {
+        let harness = Harness(now: date("2026-10-08T06:00:00-07:00"))
+        harness.snapshot = .generated(at: date("2026-10-07T18:00:00-07:00"))
+        harness.selection = .custom(name: "Seattle", latitude: 47.6, longitude: -122.3)
+        await harness.fetcher.failRecommendation()
+        let appPlanDate = date("2026-10-08T05:59:00-07:00")
+        await harness.fetcher.duringWeatherFetch { @MainActor in
+            harness.snapshot = .generated(at: appPlanDate)
+        }
+
+        let outcome = await harness.refresher.refreshIfStale()
+
+        #expect(outcome == .supersededByApp)
+        #expect(harness.published.isEmpty)
+    }
+
     @Test func nextRequestIsJustAfterTheNextLocalMidnight() async {
         let harness = Harness(now: date("2026-10-08T15:00:00-07:00"))
         harness.snapshot = .generated(at: date("2026-10-08T07:00:00-07:00"))
@@ -267,12 +312,17 @@ private actor RecordingPlanFetcher: DayPlanFetching {
     func makeUnavailable(_ reason: RecommendationState.UnavailableReason) { availability = .unavailable(reason) }
     func setAvailability(_ availability: RecommendationAvailability) { self.availability = availability }
 
+    /// Runs `hook` inside `fetchWeather`, e.g. to simulate the user changing something in the app mid-fetch.
+    private var weatherFetchHook: (@MainActor @Sendable () -> Void)?
+    func duringWeatherFetch(_ hook: @escaping @MainActor @Sendable () -> Void) { weatherFetchHook = hook }
+
     func recommendationAvailability() async -> RecommendationAvailability {
         availability
     }
 
     func fetchWeather(for coordinate: CLLocationCoordinate2D, from provider: WeatherProvider) async throws -> (DailyWeather, HourlyForecast?) {
         weatherRequests.append(WeatherRequest(latitude: coordinate.latitude, longitude: coordinate.longitude, provider: provider))
+        if let weatherFetchHook { await weatherFetchHook() }
         return (try weatherResult.get(), nil)
     }
 
