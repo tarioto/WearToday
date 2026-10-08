@@ -4,11 +4,15 @@ import Testing
 @MainActor
 struct AppIconPreferenceStoreTests {
     private func makeStore(
+        iconChoice: ThemeIcon? = nil,
+        onSave: @escaping (ThemeIcon?) -> Void = { _ in },
         installSource: InstallSource?,
         currentIcon: String?,
         onSet: @escaping (String?) -> Void
     ) -> AppIconPreferenceStore {
         AppIconPreferenceStore(
+            loadIconChoice: { iconChoice },
+            saveIconChoice: onSave,
             supportsAlternateIcons: { true },
             installSource: { installSource },
             currentAlternateIconName: { currentIcon },
@@ -65,6 +69,8 @@ struct AppIconPreferenceStoreTests {
         var setIcons: [String?] = []
         var askedForInstallSource = false
         let store = AppIconPreferenceStore(
+            loadIconChoice: { nil },
+            saveIconChoice: { _ in },
             supportsAlternateIcons: { false },
             installSource: { askedForInstallSource = true; return .testFlight },
             currentAlternateIconName: { nil },
@@ -75,5 +81,89 @@ struct AppIconPreferenceStoreTests {
 
         #expect(setIcons.isEmpty)
         #expect(!askedForInstallSource)
+    }
+
+    @Test func testFlightLaunchWithAnIconChoiceSetsThatThemeIcon() async {
+        var setIcons: [String?] = []
+        let store = makeStore(iconChoice: .ocean, installSource: .testFlight, currentIcon: AppIconPreferenceStore.betaIconName) { setIcons.append($0) }
+
+        await store.applyAtLaunch()
+
+        #expect(setIcons == [ThemeIcon.ocean.alternateIconName])
+    }
+
+    @Test func launchWithAnIconChoiceAlreadyShowingSetsNothing() async {
+        var setIcons: [String?] = []
+        let store = makeStore(iconChoice: .ocean, installSource: .testFlight, currentIcon: ThemeIcon.ocean.alternateIconName) { setIcons.append($0) }
+
+        await store.applyAtLaunch()
+
+        #expect(setIcons.isEmpty)
+    }
+
+    @Test func selectingAThemeIconSavesAndSetsIt() async {
+        var savedChoices: [ThemeIcon?] = []
+        var setIcons: [String?] = []
+        let store = makeStore(onSave: { savedChoices.append($0) }, installSource: .appStore, currentIcon: nil) { setIcons.append($0) }
+
+        await store.select(.theme(.ocean))
+
+        #expect(savedChoices == [.ocean])
+        #expect(setIcons == [ThemeIcon.ocean.alternateIconName])
+        #expect(store.selection == .theme(.ocean))
+    }
+
+    @Test func selectingDefaultClearsTheChoiceAndSetsTheBuildIcon() async {
+        var savedChoices: [ThemeIcon?] = []
+        var setIcons: [String?] = []
+        let store = makeStore(
+            iconChoice: .ocean,
+            onSave: { savedChoices.append($0) },
+            installSource: .testFlight,
+            currentIcon: ThemeIcon.ocean.alternateIconName
+        ) { setIcons.append($0) }
+
+        await store.select(.default)
+
+        #expect(savedChoices == [nil])
+        #expect(setIcons == [AppIconPreferenceStore.betaIconName])
+        #expect(store.selection == .default)
+    }
+
+    @Test func selectingDefaultWithAnUnknownInstallSourceResetsToThePrimaryIcon() async {
+        var setIcons: [String?] = []
+        let store = makeStore(iconChoice: .ocean, installSource: nil, currentIcon: ThemeIcon.ocean.alternateIconName) { setIcons.append($0) }
+
+        await store.select(.default)
+
+        #expect(setIcons == [nil])
+    }
+
+    @Test func aLoadedIconChoiceIsTheSelectionWithoutSavingOrSettingAnything() {
+        var savedChoices: [ThemeIcon?] = []
+        var setIcons: [String?] = []
+        let store = makeStore(iconChoice: .ocean, onSave: { savedChoices.append($0) }, installSource: .appStore, currentIcon: nil) { setIcons.append($0) }
+
+        #expect(store.selection == .theme(.ocean))
+        #expect(savedChoices.isEmpty)
+        #expect(setIcons.isEmpty)
+    }
+
+    @Test func noLoadedIconChoiceSelectsDefault() {
+        let store = makeStore(installSource: .appStore, currentIcon: nil) { _ in }
+
+        #expect(store.selection == .default)
+    }
+
+    @Test func testFlightLaunchShowsTheBetaIconAsTheBuildIcon() async {
+        let store = makeStore(iconChoice: .ocean, installSource: .testFlight, currentIcon: nil) { _ in }
+
+        await store.applyAtLaunch()
+
+        #expect(store.buildIcon == .beta)
+    }
+
+    @Test func eachThemeExceptDefaultHasOneThemeIconInThemeOrder() {
+        #expect(ThemeIcon.allCases.map(\.theme) == AppTheme.allCases.filter { $0 != .none })
     }
 }

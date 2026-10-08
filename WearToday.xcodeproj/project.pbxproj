@@ -41,6 +41,7 @@
 		71746EF95C5E6C245D5275FB /* OutfitRecommendation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B56C68C387BAA8EA331B45 /* OutfitRecommendation.swift */; };
 		7820EEE1617ED4234219ACD3 /* BackgroundPlanRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D97F84AF4C59B68F1A8AEA /* BackgroundPlanRefresh.swift */; };
 		8AB386112E706EE5A8455C32 /* DailyWeather.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25B71CD96597F7F92E2FC5F9 /* DailyWeather.swift */; };
+		9416DE5C396EBD31EB2A7738 /* AppIcon-Midnight.icon in Resources */ = {isa = PBXBuildFile; fileRef = CEDC620536554B4BE4A9B78A /* AppIcon-Midnight.icon */; };
 		94AA67DD30112AD879A82B0D /* WeatherProviderPreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81E56A8ECD750109919CE39 /* WeatherProviderPreferenceStore.swift */; };
 		96C6CE6F2729FBFEC3DBA3A8 /* EmojiWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B3B0F1E063EF818C37D9B3 /* EmojiWidget.swift */; };
 		9AEFAA0DF4A742CC52FCBD81 /* DescriptionWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A258C5E694ECF9974C23B78 /* DescriptionWidget.swift */; };
@@ -51,6 +52,7 @@
 		B0652AE2E2082131240744B8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A5D1871054C86610DB402A4 /* Assets.xcassets */; };
 		B4C838347BB204CCB32E82C2 /* WeatherProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9350DFA102E80C7506DFF2F3 /* WeatherProvider.swift */; };
 		B5DB48D1FADC0440AA8BCFC3 /* DailyWeather.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25B71CD96597F7F92E2FC5F9 /* DailyWeather.swift */; };
+		B9BFD3F219EE869359EEE69C /* AppIcon-Sunset.icon in Resources */ = {isa = PBXBuildFile; fileRef = AA93C36DFF54D65C7B9088CC /* AppIcon-Sunset.icon */; };
 		BE9CDFD4C712A2FAEE57F690 /* CardType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C46BAAB114507EE0CB8EA4 /* CardType.swift */; };
 		C00CE4CC22E3E5486290E57E /* PlanSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7646D4FAF10CF78590280CBC /* PlanSnapshot.swift */; };
 		C0BACC191A8962CFB131D463 /* TemperatureUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9A9E1A4D61B7B3B7EF6C56F /* TemperatureUnit.swift */; };
@@ -62,7 +64,9 @@
 		D71E823D7D087D14F1793302 /* DisplayedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BC68CA91ED22FF7A7B923ED /* DisplayedItem.swift */; };
 		D82A522712346CD9B55CA198 /* ThemePreferenceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 714127B41C4CD01C2235F421 /* ThemePreferenceStore.swift */; };
 		EE1551AF0039F4132FC06101 /* SkeletonLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C177C1C50376FA82FA6820A0 /* SkeletonLoadingView.swift */; };
+		F0D81A8D2AFB6BD86ED10306 /* AppIcon-Ocean.icon in Resources */ = {isa = PBXBuildFile; fileRef = 63FF8639E5E2EA283D1815D9 /* AppIcon-Ocean.icon */; };
 		F13D88994BEAC60771E91CF3 /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24672D02697F8B29EC456943 /* WeatherService.swift */; };
+		F781C0A8C45E36F8B0A57E0D /* AppIcon-Aurora.icon in Resources */ = {isa = PBXBuildFile; fileRef = BCCE27C6EAFF1A7108D5ACEA /* AppIcon-Aurora.icon */; };
 		FB0A5F6483677520A5C51827 /* ErrorStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3F81CD728DCC212727CB9 /* ErrorStateView.swift */; };
 		FEE6BFA906F9CB7497092B4A /* DisplayedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BC68CA91ED22FF7A7B923ED /* DisplayedItem.swift */; };
 /* End PBXBuildFile section */
@@ -125,6 +129,7 @@
 		5CB4A54EF15B6FA4E7C46495 /* PlanTimelineProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanTimelineProvider.swift; sourceTree = "<group>"; };
 		62B56C68C387BAA8EA331B45 /* OutfitRecommendation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitRecommendation.swift; sourceTree = "<group>"; };
 		631EC3EC6CD478FF1CE65906 /* CombinedWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombinedWidget.swift; sourceTree = "<group>"; };
+		63FF8639E5E2EA283D1815D9 /* AppIcon-Ocean.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = "AppIcon-Ocean.icon"; sourceTree = "<group>"; };
 		6BC68CA91ED22FF7A7B923ED /* DisplayedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayedItem.swift; sourceTree = "<group>"; };
 		6D72E0664230027C85D9536D /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		6E4276C9CECC42932B88E5CC /* WeatherAttributionLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAttributionLabel.swift; sourceTree = "<group>"; };
@@ -145,11 +150,14 @@
 		9FFAB9FDBCD0CD4AC6EC975F /* WearTodayWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WearTodayWidgetsBundle.swift; sourceTree = "<group>"; };
 		A2B1EE34C038825DCD7E38BB /* AppIcon-Beta.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = "AppIcon-Beta.icon"; sourceTree = "<group>"; };
 		A81E56A8ECD750109919CE39 /* WeatherProviderPreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherProviderPreferenceStore.swift; sourceTree = "<group>"; };
+		AA93C36DFF54D65C7B9088CC /* AppIcon-Sunset.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = "AppIcon-Sunset.icon"; sourceTree = "<group>"; };
 		B03FFFB3234416824A1FF5C3 /* AppIconPreferenceStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconPreferenceStoreTests.swift; sourceTree = "<group>"; };
 		B8A7CB9B5D5ACD005D6D0F3D /* WearTodayWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WearTodayWidgets.entitlements; sourceTree = "<group>"; };
+		BCCE27C6EAFF1A7108D5ACEA /* AppIcon-Aurora.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = "AppIcon-Aurora.icon"; sourceTree = "<group>"; };
 		C177C1C50376FA82FA6820A0 /* SkeletonLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonLoadingView.swift; sourceTree = "<group>"; };
 		C9A9E1A4D61B7B3B7EF6C56F /* TemperatureUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureUnit.swift; sourceTree = "<group>"; };
 		CC3AFDC6D7F5F011BEA834A3 /* OutfitAdvisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitAdvisor.swift; sourceTree = "<group>"; };
+		CEDC620536554B4BE4A9B78A /* AppIcon-Midnight.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = "AppIcon-Midnight.icon"; sourceTree = "<group>"; };
 		D7E6C135E0C43BEE4F7509CF /* CardPreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPreferenceStore.swift; sourceTree = "<group>"; };
 		DAC2209F1B197F9BBEC1A855 /* AppIconPreferenceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconPreferenceStore.swift; sourceTree = "<group>"; };
 		E3B3B0F1E063EF818C37D9B3 /* EmojiWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiWidget.swift; sourceTree = "<group>"; };
@@ -163,8 +171,12 @@
 		24631FFE3F485E4A05F2AFCA /* WearToday */ = {
 			isa = PBXGroup;
 			children = (
+				BCCE27C6EAFF1A7108D5ACEA /* AppIcon-Aurora.icon */,
 				A2B1EE34C038825DCD7E38BB /* AppIcon-Beta.icon */,
 				3D8B01391182C8ABE33833CC /* AppIcon-Dev.icon */,
+				CEDC620536554B4BE4A9B78A /* AppIcon-Midnight.icon */,
+				63FF8639E5E2EA283D1815D9 /* AppIcon-Ocean.icon */,
+				AA93C36DFF54D65C7B9088CC /* AppIcon-Sunset.icon */,
 				1FFD7B950DC71BF7238824FC /* AppIcon.icon */,
 				2A5D1871054C86610DB402A4 /* Assets.xcassets */,
 				8DF6933B6E8D612B8A83566B /* ContentView.swift */,
@@ -395,8 +407,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F781C0A8C45E36F8B0A57E0D /* AppIcon-Aurora.icon in Resources */,
 				574688A6AD114168B8CB5DCD /* AppIcon-Beta.icon in Resources */,
 				2B8E937DA4E8EC4318358912 /* AppIcon-Dev.icon in Resources */,
+				9416DE5C396EBD31EB2A7738 /* AppIcon-Midnight.icon in Resources */,
+				F0D81A8D2AFB6BD86ED10306 /* AppIcon-Ocean.icon in Resources */,
+				B9BFD3F219EE869359EEE69C /* AppIcon-Sunset.icon in Resources */,
 				C4AF318455BC4569077A7B78 /* AppIcon.icon in Resources */,
 				B0652AE2E2082131240744B8 /* Assets.xcassets in Resources */,
 			);
@@ -569,7 +585,7 @@
 		690D26498AF59DE23A2067B5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon-Beta";
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon-Beta AppIcon-Sunset AppIcon-Ocean AppIcon-Aurora AppIcon-Midnight";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
@@ -746,7 +762,7 @@
 		ED3C9D1AF0F631E758EEDEDF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon-Beta";
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon-Beta AppIcon-Sunset AppIcon-Ocean AppIcon-Aurora AppIcon-Midnight";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-Dev";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;

@@ -3,11 +3,13 @@ import SwiftUI
 @main
 struct WearTodayApp: App {
     @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var appIconPreference = AppIconPreferenceStore()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .task { await AppIconPreferenceStore().applyAtLaunch() }
+                .environmentObject(appIconPreference)
+                .task { await appIconPreference.applyAtLaunch() }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .background {

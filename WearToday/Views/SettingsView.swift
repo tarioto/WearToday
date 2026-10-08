@@ -8,6 +8,7 @@ struct SettingsView: View {
     @ObservedObject var cardPreference: CardPreferenceStore
     @ObservedObject var themePreference: ThemePreferenceStore
     @ObservedObject var providerPreference: WeatherProviderPreferenceStore
+    @EnvironmentObject private var appIconPreference: AppIconPreferenceStore
     @Environment(\.dismiss) private var dismiss
 
     @State private var searchText = ""
@@ -143,6 +144,20 @@ struct SettingsView: View {
                     Text("The color is used for the home screen background. Appearance controls Light/Dark mode independently.")
                 }
 
+                if appIconPreference.supportsAlternateIcons {
+                    Section("App Icon") {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 18) {
+                                appIconOption(.default, label: "Default", thumbnailName: appIconPreference.buildIcon.thumbnailName)
+                                ForEach(ThemeIcon.allCases) { icon in
+                                    appIconOption(.theme(icon), label: icon.label, thumbnailName: icon.thumbnailName)
+                                }
+                            }
+                            .padding(.vertical, 6)
+                        }
+                    }
+                }
+
                 Section {
                     ForEach($cardPreference.cards) { $config in
                         HStack {
@@ -173,6 +188,46 @@ struct SettingsView: View {
                 }
             }
         }
+    }
+
+    private static let iconThumbnailSize: CGFloat = 52
+    /// The exported thumbnails are masked with a continuous corner of about 25.8% of their width.
+    private static let iconThumbnailCornerRadius = iconThumbnailSize * 0.258
+    private static let iconSelectionGap: CGFloat = 4
+
+    private func appIconOption(_ option: AppIconSelection, label: String, thumbnailName: String) -> some View {
+        let isSelected = appIconPreference.selection == option
+        return Button {
+            Task { await appIconPreference.select(option) }
+        } label: {
+            VStack(spacing: 6) {
+                Image(thumbnailName)
+                    .resizable()
+                    .frame(width: Self.iconThumbnailSize, height: Self.iconThumbnailSize)
+                    .overlay(
+                        // Concentric with the icon: the ring sits outside it, so its radius grows by the gap.
+                        RoundedRectangle(cornerRadius: Self.iconThumbnailCornerRadius + Self.iconSelectionGap, style: .continuous)
+                            .strokeBorder(Color.primary, lineWidth: isSelected ? 3 : 0)
+                            .padding(-Self.iconSelectionGap)
+                    )
+                    .overlay(alignment: .bottomTrailing) {
+                        if isSelected {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.body.bold())
+                                .symbolRenderingMode(.palette)
+                                .foregroundStyle(.white, Color.primary)
+                                .offset(x: 6, y: 6)
+                        }
+                    }
+                Text(label)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(Self.iconSelectionGap)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private func search() {
@@ -217,4 +272,5 @@ private enum GeocodeError: Error {
         themePreference: ThemePreferenceStore(),
         providerPreference: WeatherProviderPreferenceStore()
     )
+    .environmentObject(AppIconPreferenceStore())
 }
