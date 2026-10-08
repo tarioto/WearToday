@@ -16,18 +16,16 @@ struct SkeletonLoadingView: View {
     }
 }
 
-// Sized to match a typical loaded plan (hourly chart, two-sentence summary, five items)
+// Sized to match a typical loaded plan (hourly chart, three-line summary, three items with two-line reasons)
 // so the cards don't jump in height when real data arrives. Kept separate from the shared
 // `.placeholder` values, which also back the widget gallery previews.
 private extension SkeletonLoadingView {
     static let recommendation = OutfitRecommendation(
-        summary: "Expect a mild start with clouds building through the afternoon. Dress in light layers and keep rain gear handy for the commute home.",
+        summary: "With showers and cool temps, stay dry and comfortable with smart layers and some sun protection for the brighter breaks.",
         items: [
-            RecommendedItem(emoji: "🧥", name: "Light jacket", reason: "Cool morning air before the afternoon warms up"),
-            RecommendedItem(emoji: "☂️", name: "Umbrella", reason: "Scattered showers are likely later in the day"),
-            RecommendedItem(emoji: "🕶️", name: "Sunglasses", reason: "Bright sun breaks through around midday"),
-            RecommendedItem(emoji: "👟", name: "Sneakers", reason: "Comfortable for walking on damp sidewalks"),
-            RecommendedItem(emoji: "🧢", name: "Cap", reason: "Keeps sun and light drizzle off your face")
+            RecommendedItem(emoji: "☂️", name: "Umbrella", reason: "Rain showers are likely, so keep dry with a reliable umbrella."),
+            RecommendedItem(emoji: "🧥", name: "Light jacket", reason: "Cool temps this morning call for a breathable outer layer."),
+            RecommendedItem(emoji: "🕶️", name: "Sunglasses", reason: "UV is low, but the sun can still peek through the showers.")
         ]
     )
 
