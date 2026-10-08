@@ -7,8 +7,8 @@ struct EmojiWidgetEntryView: View {
     var body: some View {
         if let snapshot = entry.snapshot {
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                ForEach(Array(snapshot.recommendation.items.prefix(4)), id: \.name) { item in
-                    Text(item.emoji)
+                ForEach(snapshot.recommendation.displayedItems(limit: 4)) { row in
+                    Text(row.item.emoji)
                         .font(.system(size: 34))
                 }
             }
