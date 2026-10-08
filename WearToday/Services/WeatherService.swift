@@ -35,6 +35,10 @@ struct WeatherService {
             throw WeatherServiceError.invalidResponse
         }
 
+        return try Self.dailyWeather(from: data)
+    }
+
+    static func dailyWeather(from data: Data) throws -> DailyWeather {
         let decoded: OpenMeteoResponse
         do {
             decoded = try JSONDecoder().decode(OpenMeteoResponse.self, from: data)
@@ -54,9 +58,18 @@ struct WeatherService {
             throw WeatherServiceError.decodingFailed
         }
 
+        guard let timeZone = decoded.forecastTimeZone else {
+            throw WeatherServiceError.decodingFailed
+        }
+
         let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.timeZone = timeZone
         formatter.dateFormat = "yyyy-MM-dd"
-        let date = formatter.date(from: dateString) ?? Date()
+        guard let date = formatter.date(from: dateString) else {
+            throw WeatherServiceError.decodingFailed
+        }
 
         return DailyWeather(
             date: date,
@@ -81,5 +94,14 @@ private struct OpenMeteoResponse: Decodable {
         let windspeed_10m_max: [Double]
         let weathercode: [Int]
     }
+    let timezone: String?
+    let utc_offset_seconds: Int?
     let daily: Daily
+
+    /// The forecast location's time zone (requested with `timezone=auto`).
+    var forecastTimeZone: TimeZone? {
+        if let timezone, let zone = TimeZone(identifier: timezone) { return zone }
+        if let utc_offset_seconds { return TimeZone(secondsFromGMT: utc_offset_seconds) }
+        return nil
+    }
 }
