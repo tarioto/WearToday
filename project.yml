@@ -29,6 +29,16 @@ targets:
     scheme:
       testTargets:
         - WearTodayTests
+    info:
+      path: WearToday/Info.plist
+      properties:
+        # Keep versions driven by build settings instead of XcodeGen's hard-coded defaults.
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UIBackgroundModes:
+          - fetch
+        BGTaskSchedulerPermittedIdentifiers:
+          - com.timarioto.WearToday.planRefresh
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.timarioto.WearToday

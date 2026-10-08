@@ -37,6 +37,12 @@ struct DayPlanFetcher: DayPlanFetching {
     }
 
     func recommendationAvailability() async -> RecommendationAvailability {
+        Self.currentAvailability()
+    }
+
+    /// The on-device model's availability right now. Synchronous for callers that can't
+    /// await, e.g. scheduling background work as the app moves to the background.
+    static func currentAvailability() -> RecommendationAvailability {
         switch SystemLanguageModel.default.availability {
         case .available:
             return .available
