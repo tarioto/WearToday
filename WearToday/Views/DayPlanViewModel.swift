@@ -138,8 +138,12 @@ final class DayPlanViewModel: ObservableObject {
             let weather = try await weatherService.fetchTodayForecast(for: coordinate)
             return (weather, await hourlyTask)
         case .apple:
+            // WeatherKit has no hourly uncertainty, so borrow Open-Meteo's ensemble spread
+            // for the chart's band. If that request fails, the chart just shows the line.
+            async let ensembleTask: HourlyForecast? = try? hourlyForecastService.fetchHourlyForecast(for: coordinate, includePrecipitation: false)
             let forecast = try await appleWeatherService.fetchForecast(for: coordinate)
-            return (forecast.daily, forecast.hourly)
+            guard let ensemble = await ensembleTask else { return (forecast.daily, forecast.hourly) }
+            return (forecast.daily, forecast.hourly.applyingSpread(from: ensemble))
         }
     }
 }

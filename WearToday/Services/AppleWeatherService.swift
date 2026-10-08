@@ -53,8 +53,8 @@ struct AppleWeatherService {
         labelFormatter.timeZone = timeZone
         labelFormatter.locale = Locale(identifier: "en_US_POSIX")
 
-        // Apple Weather gives a single deterministic value per hour, so there is no
-        // ensemble spread: min and max equal the mean.
+        // Apple Weather gives a single deterministic value per hour, so min and max equal
+        // the mean here. DayPlanViewModel layers Open-Meteo's ensemble spread on top.
         let cutoff = now.addingTimeInterval(-1800)
         let points = hourlyForecast
             .filter { $0.date >= cutoff }
