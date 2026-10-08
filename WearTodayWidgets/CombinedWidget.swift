@@ -26,10 +26,10 @@ struct CombinedWidgetEntryView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
-                    ForEach(Array(snapshot.recommendation.items.prefix(itemLimit)), id: \.name) { item in
+                    ForEach(snapshot.recommendation.displayedItems(limit: itemLimit)) { row in
                         HStack(spacing: 8) {
-                            Text(item.emoji)
-                            Text(item.name)
+                            Text(row.item.emoji)
+                            Text(row.item.name)
                                 .font(.caption)
                             Spacer()
                         }
