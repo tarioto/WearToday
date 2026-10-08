@@ -35,27 +35,27 @@ enum BuildIcon {
 
 /// An alternate home screen icon matching one Theme. The raw value is the persisted Icon Choice.
 enum ThemeIcon: String, CaseIterable, Identifiable {
+    case sunset
     case ocean
+    case aurora
+    case midnight
 
     var id: String { rawValue }
 
-    var alternateIconName: String {
+    var theme: AppTheme {
         switch self {
-        case .ocean: "AppIcon-Ocean"
+        case .sunset: .sunset
+        case .ocean: .ocean
+        case .aurora: .aurora
+        case .midnight: .midnight
         }
     }
 
-    var label: String {
-        switch self {
-        case .ocean: "Ocean"
-        }
-    }
+    var label: String { theme.label }
 
-    var thumbnailName: String {
-        switch self {
-        case .ocean: "IconThumbnail-Ocean"
-        }
-    }
+    var alternateIconName: String { "AppIcon-\(theme.label)" }
+
+    var thumbnailName: String { "IconThumbnail-\(theme.label)" }
 }
 
 /// The picker's selection: Default (no Icon Choice, so the Build Icon) or a Theme Icon.

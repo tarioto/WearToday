@@ -162,4 +162,8 @@ struct AppIconPreferenceStoreTests {
 
         #expect(store.buildIcon == .beta)
     }
+
+    @Test func eachThemeExceptDefaultHasOneThemeIconInThemeOrder() {
+        #expect(ThemeIcon.allCases.map(\.theme) == AppTheme.allCases.filter { $0 != .none })
+    }
 }
