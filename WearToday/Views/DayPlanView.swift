@@ -143,6 +143,7 @@ private struct RecommendationNoticeView: View {
             Image(systemName: symbolName)
                 .font(.title2)
                 .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
             Text(message)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)

@@ -15,7 +15,7 @@ struct EmojiWidgetEntryView: View {
             .padding(4)
             .containerBackground(.fill.tertiary, for: .widget)
         } else if let snapshot = entry.snapshot {
-            WeatherOnlyPlanView(weather: snapshot.weather)
+            WeatherOnlyPlanView(weather: snapshot.weather, provider: snapshot.provider)
         } else {
             EmptyPlanView()
         }
