@@ -43,6 +43,24 @@ Signing is configured for the original author's team. To run on your own device,
 - `PROVISIONING_PROFILE_SPECIFIER` for both targets (or switch `CODE_SIGN_STYLE` to `Automatic` and remove them)
 - The App Group `group.com.timarioto.WearToday` in both `.entitlements` files — the app and widget extension share forecast data through it
 
+### Releasing
+
+Every build goes to TestFlight first; an App Store release is a TestFlight build you promote.
+
+1. Set `MARKETING_VERSION` in `project.yml` to the version you're working toward (e.g. `1.1`) and regenerate.
+2. Upload builds to TestFlight as often as you like:
+
+   ```sh
+   scripts/testflight.sh              # archive and upload
+   scripts/testflight.sh --no-upload  # archive only
+   ```
+
+   The build number is the archive time, `YYYYMMDD.HHMM` (e.g. `20261008.1542`). Uploading uses the Apple account signed in to Xcode.
+3. In App Store Connect, pick the build for that version and submit it for review.
+4. Once the version is released, App Store Connect accepts no more builds for it — bump `MARKETING_VERSION` before the next upload.
+
+TestFlight and App Store installs run the same binary. The app tells them apart at runtime (that's how TestFlight installs get `AppIcon-Beta`), so any other TestFlight-only behavior has to be decided the same way.
+
 ### Secret scanning
 
 Pushes and PRs are scanned for secrets with [gitleaks](https://github.com/gitleaks/gitleaks) in CI, and GitHub push protection rejects known token formats. To also catch secrets before they leave your machine, enable the local pre-push hook:
