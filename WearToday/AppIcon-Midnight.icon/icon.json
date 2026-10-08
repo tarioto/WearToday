@@ -95,22 +95,22 @@
           "fill-specializations" : [
             {
               "value" : {
-                "automatic-gradient" : "display-p3:1.00000,0.82000,0.20000,1.00000"
+                "automatic-gradient" : "display-p3:0.96000,0.94000,0.82000,1.00000"
               }
             },
             {
               "appearance" : "dark",
               "value" : {
-                "automatic-gradient" : "display-p3:1.00000,0.75000,0.25000,1.00000"
+                "automatic-gradient" : "display-p3:0.90000,0.88000,0.76000,1.00000"
               }
             }
           ],
           "glass" : true,
-          "image-name" : "sun.svg",
-          "name" : "sun"
+          "image-name" : "moon.svg",
+          "name" : "moon"
         }
       ],
-      "name" : "Sun",
+      "name" : "Moon",
       "shadow" : {
         "kind" : "layer-color",
         "opacity" : 0.5
