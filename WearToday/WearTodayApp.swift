@@ -7,7 +7,7 @@ struct WearTodayApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .task { await AppIconSwitcher.applyForInstallSource() }
+                .task { await AppIconPreferenceStore().applyAtLaunch() }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .background {
