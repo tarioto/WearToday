@@ -217,6 +217,23 @@ struct BackgroundPlanRefreshTests {
         #expect(harness.published.isEmpty)
     }
 
+    @Test func cancellingWhileSuggestionsAreGeneratingPublishesNothing() async {
+        // e.g. the background task's time expires mid-generation; yesterday's full plan should stay.
+        let harness = Harness(now: date("2026-10-08T06:00:00-07:00"))
+        harness.snapshot = .generated(at: date("2026-10-07T18:00:00-07:00"))
+        harness.selection = .custom(name: "Seattle", latitude: 47.6, longitude: -122.3)
+        let generationStarted = await harness.fetcher.holdRecommendationUntilCancelled()
+        let refresher = harness.refresher
+
+        let refresh = Task { await refresher.refreshIfStale() }
+        for await _ in generationStarted { break }
+        refresh.cancel()
+        let outcome = await refresh.value
+
+        #expect(outcome == .cancelled)
+        #expect(harness.published.isEmpty)
+    }
+
     @Test func nextRequestIsJustAfterTheNextLocalMidnight() async {
         let harness = Harness(now: date("2026-10-08T15:00:00-07:00"))
         harness.snapshot = .generated(at: date("2026-10-08T07:00:00-07:00"))
@@ -326,8 +343,21 @@ private actor RecordingPlanFetcher: DayPlanFetching {
         return (try weatherResult.get(), nil)
     }
 
+    /// Makes generation hang until the calling task is cancelled (then it throws `CancellationError`,
+    /// like a real on-device session). The returned stream yields once generation has started.
+    private var generationStarted: AsyncStream<Void>.Continuation?
+    func holdRecommendationUntilCancelled() -> AsyncStream<Void> {
+        let (stream, continuation) = AsyncStream<Void>.makeStream()
+        generationStarted = continuation
+        return stream
+    }
+
     func recommendation(for weather: DailyWeather) async throws -> OutfitRecommendation {
         recommendationRequestCount += 1
+        if let generationStarted {
+            generationStarted.yield()
+            try await Task.sleep(for: .seconds(600))
+        }
         return try recommendationResult.get()
     }
 }

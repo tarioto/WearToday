@@ -19,6 +19,8 @@ struct BackgroundPlanRefresher {
         /// While this run was fetching, the app changed the city or provider, or saved a plan
         /// for today that is at least as complete; nothing published so the app's plan stays.
         case supersededByApp
+        /// The task was cancelled (e.g. the system's background time expired); nothing published.
+        case cancelled
     }
 
     let fetcher: DayPlanFetching
@@ -58,6 +60,9 @@ struct BackgroundPlanRefresher {
         } else {
             nil
         }
+        // `try?` above also swallows `CancellationError`: if the system expired the task mid-generation,
+        // don't replace the saved plan (maybe yesterday's full plan) with a weather-only one.
+        guard !Task.isCancelled else { return .cancelled }
         // The user may have opened the app and loaded a plan for another city or provider while
         // we were fetching; publishing now would overwrite it with this older request's plan.
         guard self.selection() == selection, self.provider() == provider else { return .supersededByApp }
