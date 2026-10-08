@@ -5,9 +5,29 @@ import WidgetKit
 enum LoadState {
     case idle
     case loadingWeather
-    case loadingRecommendation
-    case loaded(weather: DailyWeather, recommendation: OutfitRecommendation, hourly: HourlyForecast?, provider: WeatherProvider)
+    /// Weather is shown as soon as it arrives; the outfit recommendation follows separately.
+    case loaded(weather: DailyWeather, hourly: HourlyForecast?, provider: WeatherProvider, recommendation: RecommendationState)
     case failed(String)
+}
+
+/// The outfit suggestion's progress for weather that has already loaded.
+enum RecommendationState {
+    case loading
+    case ready(OutfitRecommendation)
+    case unavailable(UnavailableReason)
+    case failed(String)
+
+    /// Why the on-device model can't make suggestions right now.
+    enum UnavailableReason: Equatable, Sendable {
+        case deviceNotEligible
+        case appleIntelligenceNotEnabled
+        case modelNotReady
+    }
+
+    var outfit: OutfitRecommendation? {
+        if case .ready(let recommendation) = self { return recommendation }
+        return nil
+    }
 }
 
 @MainActor
@@ -77,6 +97,13 @@ final class DayPlanViewModel: ObservableObject {
         start()
     }
 
+    /// Asks the model again for the weather already on screen, without refetching it.
+    func retryRecommendation() {
+        guard case .loaded(let weather, let hourly, let provider, _) = state else { return }
+        loadTask?.cancel()
+        loadTask = Task { await loadRecommendation(weather: weather, hourly: hourly, provider: provider) }
+    }
+
     func refresh() async {
         switch locationPreference.selection {
         case .currentLocation:
@@ -138,15 +165,29 @@ final class DayPlanViewModel: ObservableObject {
         do {
             let (weather, hourly) = try await fetcher.fetchWeather(for: coordinate, from: provider)
             guard !Task.isCancelled else { return }
-            state = .loadingRecommendation
-            let recommendation = try await fetcher.recommendation(for: weather)
-            guard !Task.isCancelled else { return }
-            state = .loaded(weather: weather, recommendation: recommendation, hourly: hourly, provider: provider)
-            publishSnapshot(PlanSnapshot(weather: weather, recommendation: recommendation, generatedAt: .now, provider: provider))
+            await loadRecommendation(weather: weather, hourly: hourly, provider: provider)
         } catch {
             guard !Task.isCancelled else { return }
             state = .failed(error.localizedDescription)
         }
+    }
+
+    /// Fills in the recommendation for weather that's already on screen; never fails the whole plan.
+    private func loadRecommendation(weather: DailyWeather, hourly: HourlyForecast?, provider: WeatherProvider) async {
+        state = .loaded(weather: weather, hourly: hourly, provider: provider, recommendation: .loading)
+        let recommendation: RecommendationState
+        if case .unavailable(let reason) = await fetcher.recommendationAvailability() {
+            recommendation = .unavailable(reason)
+        } else {
+            do {
+                recommendation = .ready(try await fetcher.recommendation(for: weather))
+            } catch {
+                recommendation = .failed(error.localizedDescription)
+            }
+        }
+        guard !Task.isCancelled else { return }
+        state = .loaded(weather: weather, hourly: hourly, provider: provider, recommendation: recommendation)
+        publishSnapshot(PlanSnapshot(weather: weather, recommendation: recommendation.outfit, generatedAt: .now, provider: provider))
     }
 
     /// Default snapshot sink: shares the plan with the widget and refreshes its timelines.

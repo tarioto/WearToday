@@ -2,7 +2,8 @@ import Foundation
 
 struct PlanSnapshot: Codable, Sendable {
     let weather: DailyWeather
-    let recommendation: OutfitRecommendation
+    /// Nil when the on-device model couldn't make suggestions; widgets then show weather only.
+    let recommendation: OutfitRecommendation?
     let generatedAt: Date
     /// Optional so snapshots saved before providers existed still decode.
     var provider: WeatherProvider?

@@ -18,22 +18,26 @@ struct CombinedWidgetEntryView: View {
             VStack(alignment: .leading, spacing: 10) {
                 header(for: snapshot)
 
-                if family != .systemMedium {
-                    Text(snapshot.recommendation.summary)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(family == .systemLarge ? 3 : 4)
-                }
+                if let recommendation = snapshot.recommendation {
+                    if family != .systemMedium {
+                        Text(recommendation.summary)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(family == .systemLarge ? 3 : 4)
+                    }
 
-                VStack(alignment: .leading, spacing: 6) {
-                    ForEach(snapshot.recommendation.displayedItems(limit: itemLimit)) { row in
-                        HStack(spacing: 8) {
-                            Text(row.item.emoji)
-                            Text(row.item.name)
-                                .font(.caption)
-                            Spacer()
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(recommendation.displayedItems(limit: itemLimit)) { row in
+                            HStack(spacing: 8) {
+                                Text(row.item.emoji)
+                                Text(row.item.name)
+                                    .font(.caption)
+                                Spacer()
+                            }
                         }
                     }
+                } else {
+                    NoSuggestionsNote()
                 }
 
                 if let provider = snapshot.provider {
@@ -85,4 +89,5 @@ struct CombinedWidget: Widget {
     CombinedWidget()
 } timeline: {
     PlanEntry(date: .now, snapshot: .placeholder)
+    PlanEntry(date: .now, snapshot: .weatherOnlyPlaceholder)
 }

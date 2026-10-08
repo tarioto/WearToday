@@ -222,9 +222,148 @@ struct DayPlanViewModelTests {
         #expect(refreshFinished)
         #expect(viewModel.state.loadedHigh == 10)
     }
+
+    // MARK: Weather without a recommendation (#12)
+
+    @Test func recommendationFailureStillShowsWeatherAndPublishesWeatherOnlySnapshot() async throws {
+        let fetcher = FakeDayPlanFetcher(recommendation: .failure(FakeFetchError()))
+        var snapshots: [PlanSnapshot] = []
+        let viewModel = makeCustomCityViewModel(fetcher: fetcher, publishSnapshot: { snapshots.append($0) })
+
+        viewModel.start()
+        try await waitUntil { viewModel.state.recommendationState != nil && !viewModel.state.isRecommendationLoading }
+
+        #expect(viewModel.state.loadedHigh == DailyWeather.placeholder.highTemperatureF)
+        #expect(viewModel.state.recommendationFailureMessage == "Stale request failed")
+        #expect(snapshots.count == 1)
+        #expect(snapshots.first?.recommendation == nil)
+        #expect(snapshots.first?.weather.highTemperatureF == DailyWeather.placeholder.highTemperatureF)
+    }
+
+    @Test(arguments: [
+        RecommendationState.UnavailableReason.deviceNotEligible,
+        .appleIntelligenceNotEnabled,
+        .modelNotReady,
+    ])
+    func unavailableModelShowsWeatherWithReasonWithoutAttemptingGeneration(reason: RecommendationState.UnavailableReason) async throws {
+        let fetcher = FakeDayPlanFetcher(availability: .unavailable(reason))
+        var snapshots: [PlanSnapshot] = []
+        let viewModel = makeCustomCityViewModel(fetcher: fetcher, publishSnapshot: { snapshots.append($0) })
+
+        viewModel.start()
+        try await waitUntil { viewModel.state.recommendationState != nil && !viewModel.state.isRecommendationLoading }
+
+        #expect(viewModel.state.loadedHigh == DailyWeather.placeholder.highTemperatureF)
+        #expect(viewModel.state.unavailableReason == reason)
+        #expect(await fetcher.recommendationRequestCount == 0)
+        #expect(snapshots.count == 1)
+        #expect(snapshots.first?.recommendation == nil)
+    }
+
+    @Test func weatherFetchFailureStillFailsThePlan() async throws {
+        let fetcher = FakeDayPlanFetcher(weather: .failure(FakeFetchError()))
+        var snapshots: [PlanSnapshot] = []
+        let viewModel = makeCustomCityViewModel(fetcher: fetcher, publishSnapshot: { snapshots.append($0) })
+
+        viewModel.start()
+        try await waitUntil { viewModel.state.isFailed }
+
+        #expect(await fetcher.recommendationRequestCount == 0)
+        #expect(snapshots.isEmpty)
+    }
+
+    @Test func successfulRecommendationIsReadyAndSavedToSnapshot() async throws {
+        let outfit = OutfitRecommendation(summary: "Bring a coat.", items: [RecommendedItem(emoji: "🧥", name: "Coat", reason: "Cold")])
+        let fetcher = FakeDayPlanFetcher(recommendation: .success(outfit))
+        var snapshots: [PlanSnapshot] = []
+        let viewModel = makeCustomCityViewModel(fetcher: fetcher, publishSnapshot: { snapshots.append($0) })
+
+        viewModel.start()
+        try await waitUntil { viewModel.state.readySummary != nil }
+
+        #expect(viewModel.state.readySummary == "Bring a coat.")
+        #expect(snapshots.map(\.recommendation?.summary) == ["Bring a coat."])
+    }
+
+    @Test func weatherShowsWhileRecommendationIsStillGenerating() async throws {
+        let fetcher = GatedRecommendationFetcher()
+        var snapshots: [PlanSnapshot] = []
+        let viewModel = makeCustomCityViewModel(fetcher: fetcher, publishSnapshot: { snapshots.append($0) })
+
+        viewModel.start()
+        try await waitUntil { await fetcher.pendingRecommendationCount == 1 }
+
+        #expect(viewModel.state.isRecommendationLoading)
+        #expect(viewModel.state.loadedHigh == 10)
+        #expect(snapshots.isEmpty)
+
+        await fetcher.completeRecommendation(with: .success(.placeholder))
+        try await waitUntil { viewModel.state.readySummary != nil }
+        #expect(snapshots.count == 1)
+    }
+
+    @Test func retryAfterRecommendationFailureMakesItReadyWithoutRefetchingWeather() async throws {
+        let fetcher = FakeDayPlanFetcher(recommendation: .failure(FakeFetchError()))
+        var snapshots: [PlanSnapshot] = []
+        let viewModel = makeCustomCityViewModel(fetcher: fetcher, publishSnapshot: { snapshots.append($0) })
+        viewModel.start()
+        try await waitUntil { viewModel.state.recommendationFailureMessage != nil }
+
+        await fetcher.setRecommendation(.success(.placeholder))
+        viewModel.retryRecommendation()
+        try await waitUntil { viewModel.state.readySummary != nil }
+
+        #expect(viewModel.state.readySummary == OutfitRecommendation.placeholder.summary)
+        #expect(await fetcher.requestedCoordinates.count == 1)
+        #expect(await fetcher.recommendationRequestCount == 2)
+        #expect(snapshots.map { $0.recommendation == nil } == [true, false])
+    }
+
+    @Test func lateRecommendationFromSupersededLoadDoesNotOverwriteNewerCity() async throws {
+        let fetcher = GatedRecommendationFetcher()
+        let locationPreference = LocationPreferenceStore()
+        locationPreference.selection = .custom(name: "City A", latitude: 10, longitude: 10)
+        var snapshots: [PlanSnapshot] = []
+        let viewModel = DayPlanViewModel(
+            locationManager: FakeLocationProvider(),
+            locationPreference: locationPreference,
+            providerPreference: WeatherProviderPreferenceStore(),
+            fetcher: fetcher,
+            publishSnapshot: { snapshots.append($0) }
+        )
+
+        viewModel.start()
+        try await waitUntil { await fetcher.pendingRecommendationCount == 1 }
+
+        locationPreference.selection = .custom(name: "City B", latitude: 20, longitude: 20)
+        try await waitUntil { await fetcher.pendingRecommendationCount == 2 }
+
+        // City B's recommendation completes, then City A's stale one arrives late.
+        await fetcher.completeRecommendation(with: .success(OutfitRecommendation(summary: "City B", items: [])))
+        try await waitUntil { viewModel.state.readySummary == "City B" }
+        await fetcher.completeRecommendation(with: .success(OutfitRecommendation(summary: "City A", items: [])))
+        try await Task.sleep(for: .milliseconds(50))
+
+        #expect(viewModel.state.readySummary == "City B")
+        #expect(viewModel.state.loadedHigh == 20)
+        #expect(snapshots.map(\.recommendation?.summary) == ["City B"])
+    }
 }
 
 // MARK: - Helpers
+
+@MainActor
+private func makeCustomCityViewModel(fetcher: DayPlanFetching, publishSnapshot: @escaping @MainActor (PlanSnapshot) -> Void = { _ in }) -> DayPlanViewModel {
+    let locationPreference = LocationPreferenceStore()
+    locationPreference.selection = .custom(name: "City A", latitude: 10, longitude: 10)
+    return DayPlanViewModel(
+        locationManager: FakeLocationProvider(),
+        locationPreference: locationPreference,
+        providerPreference: WeatherProviderPreferenceStore(),
+        fetcher: fetcher,
+        publishSnapshot: publishSnapshot
+    )
+}
 
 private extension LoadState {
     var isFailed: Bool {
@@ -239,6 +378,31 @@ private extension LoadState {
 
     var loadedHigh: Double? {
         if case .loaded(let weather, _, _, _) = self { return weather.highTemperatureF }
+        return nil
+    }
+
+    var recommendationState: RecommendationState? {
+        if case .loaded(_, _, _, let recommendation) = self { return recommendation }
+        return nil
+    }
+
+    var isRecommendationLoading: Bool {
+        if case .loading = recommendationState { return true }
+        return false
+    }
+
+    var unavailableReason: RecommendationState.UnavailableReason? {
+        if case .unavailable(let reason) = recommendationState { return reason }
+        return nil
+    }
+
+    var readySummary: String? {
+        if case .ready(let outfit) = recommendationState { return outfit.summary }
+        return nil
+    }
+
+    var recommendationFailureMessage: String? {
+        if case .failed(let message) = recommendationState { return message }
         return nil
     }
 }
@@ -300,14 +464,37 @@ private final class FakeLocationProvider: LocationProviding {
 
 private actor FakeDayPlanFetcher: DayPlanFetching {
     private(set) var requestedCoordinates: [CLLocationCoordinate2D] = []
+    private(set) var recommendationRequestCount = 0
+    private let weatherResult: Result<DailyWeather, Error>
+    private var recommendationResult: Result<OutfitRecommendation, Error>
+    private let availability: RecommendationAvailability
+
+    init(
+        weather: Result<DailyWeather, Error> = .success(.placeholder),
+        recommendation: Result<OutfitRecommendation, Error> = .success(.placeholder),
+        availability: RecommendationAvailability = .available
+    ) {
+        weatherResult = weather
+        recommendationResult = recommendation
+        self.availability = availability
+    }
+
+    func setRecommendation(_ result: Result<OutfitRecommendation, Error>) {
+        recommendationResult = result
+    }
+
+    func recommendationAvailability() async -> RecommendationAvailability {
+        availability
+    }
 
     func fetchWeather(for coordinate: CLLocationCoordinate2D, from provider: WeatherProvider) async throws -> (DailyWeather, HourlyForecast?) {
         requestedCoordinates.append(coordinate)
-        return (.placeholder, nil)
+        return (try weatherResult.get(), nil)
     }
 
     func recommendation(for weather: DailyWeather) async throws -> OutfitRecommendation {
-        .placeholder
+        recommendationRequestCount += 1
+        return try recommendationResult.get()
     }
 }
 
@@ -330,7 +517,37 @@ private actor GatedDayPlanFetcher: DayPlanFetching {
         return (weather, nil)
     }
 
+    func recommendationAvailability() async -> RecommendationAvailability {
+        .available
+    }
+
     func recommendation(for weather: DailyWeather) async throws -> OutfitRecommendation {
         .placeholder
+    }
+}
+
+/// Returns weather right away (high = latitude) but holds each recommendation until the test
+/// completes it, newest first, so tests can observe the plan while suggestions are generating.
+private actor GatedRecommendationFetcher: DayPlanFetching {
+    private var pending: [CheckedContinuation<OutfitRecommendation, Error>] = []
+
+    var pendingRecommendationCount: Int { pending.count }
+
+    func completeRecommendation(with result: Result<OutfitRecommendation, Error>) {
+        pending.popLast()?.resume(with: result)
+    }
+
+    func fetchWeather(for coordinate: CLLocationCoordinate2D, from provider: WeatherProvider) async throws -> (DailyWeather, HourlyForecast?) {
+        (.forecast(high: coordinate.latitude), nil)
+    }
+
+    func recommendationAvailability() async -> RecommendationAvailability {
+        .available
+    }
+
+    func recommendation(for weather: DailyWeather) async throws -> OutfitRecommendation {
+        try await withCheckedThrowingContinuation { continuation in
+            pending.append(continuation)
+        }
     }
 }
