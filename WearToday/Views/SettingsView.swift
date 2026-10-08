@@ -190,6 +190,11 @@ struct SettingsView: View {
         }
     }
 
+    private static let iconThumbnailSize: CGFloat = 52
+    /// The exported thumbnails are masked with a continuous corner of about 25.8% of their width.
+    private static let iconThumbnailCornerRadius = iconThumbnailSize * 0.258
+    private static let iconSelectionGap: CGFloat = 4
+
     private func appIconOption(_ option: AppIconSelection, label: String, thumbnailName: String) -> some View {
         let isSelected = appIconPreference.selection == option
         return Button {
@@ -198,11 +203,12 @@ struct SettingsView: View {
             VStack(spacing: 6) {
                 Image(thumbnailName)
                     .resizable()
-                    .frame(width: 52, height: 52)
+                    .frame(width: Self.iconThumbnailSize, height: Self.iconThumbnailSize)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        // Concentric with the icon: the ring sits outside it, so its radius grows by the gap.
+                        RoundedRectangle(cornerRadius: Self.iconThumbnailCornerRadius + Self.iconSelectionGap, style: .continuous)
                             .strokeBorder(Color.primary, lineWidth: isSelected ? 3 : 0)
-                            .padding(-4)
+                            .padding(-Self.iconSelectionGap)
                     )
                     .overlay(alignment: .bottomTrailing) {
                         if isSelected {
@@ -217,7 +223,7 @@ struct SettingsView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            .padding(4)
+            .padding(Self.iconSelectionGap)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(label)
