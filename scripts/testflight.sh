@@ -1,11 +1,12 @@
 #!/bin/zsh
 # Archive a Release build and upload it to App Store Connect, where it lands in TestFlight.
 #
-# The build number is the archive time, YYYYMMDD.HHMM (e.g. 20261008.1542), so every upload
-# is higher than the last. The version (MARKETING_VERSION in project.yml) is left alone.
+# The version comes from MARKETING_VERSION in project.yml (e.g. 1.0.0). The build number is
+# assigned by Xcode at upload time: it asks App Store Connect for the next one (1, 2, 3, ...),
+# so nothing needs committing after an upload.
 #
 # Usage:
-#   scripts/testflight.sh            archive and upload
+#   scripts/testflight.sh              archive and upload
 #   scripts/testflight.sh --no-upload  archive only
 #
 # Uploading uses the Apple account signed in to Xcode (Settings > Accounts).
@@ -26,23 +27,17 @@ if [[ -n "$(git status --porcelain)" ]]; then
   echo "warning: working tree has uncommitted changes; they will be in this build." >&2
 fi
 
-# Read the date and time once so both halves come from the same moment.
-# The time is written without leading zeros (09:05 -> 905) because each part of a
-# build number must be a plain integer.
-read day hhmm <<< "$(date '+%Y%m%d %H%M')"
-build_number="$day.$((10#$hhmm))"
-
 # Tidy xcodebuild's output when xcbeautify is installed (brew install xcbeautify).
 pretty() {
   if command -v xcbeautify > /dev/null; then xcbeautify; else cat; fi
 }
 
-build_dir="build/testflight/$build_number"
+build_dir="build/testflight/$(date '+%Y%m%d-%H%M%S')"
 archive_path="$build_dir/WearToday.xcarchive"
 export_options="$build_dir/ExportOptions.plist"
 mkdir -p "$build_dir"
 
-echo "==> Archiving WearToday build $build_number"
+echo "==> Archiving WearToday"
 xcodebuild archive \
   -project WearToday.xcodeproj \
   -scheme WearToday \
@@ -50,14 +45,17 @@ xcodebuild archive \
   -destination 'generic/platform=iOS' \
   -archivePath "$archive_path" \
   -allowProvisioningUpdates \
-  CURRENT_PROJECT_VERSION="$build_number" \
   | pretty
 
+version=$(/usr/libexec/PlistBuddy -c 'Print :ApplicationProperties:CFBundleShortVersionString' "$archive_path/Info.plist")
+
 if ! $upload; then
-  echo "==> Archived to $archive_path (not uploaded)"
+  echo "==> Archived version $version to $archive_path (not uploaded)"
   exit 0
 fi
 
+# manageAppVersionAndBuildNumber lets Xcode replace the archive's build number with the
+# next one App Store Connect will accept.
 cat > "$export_options" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -72,12 +70,12 @@ cat > "$export_options" <<'PLIST'
     <key>teamID</key>
     <string>TYXC29FT67</string>
     <key>manageAppVersionAndBuildNumber</key>
-    <false/>
+    <true/>
 </dict>
 </plist>
 PLIST
 
-echo "==> Uploading build $build_number to App Store Connect"
+echo "==> Uploading version $version to App Store Connect"
 xcodebuild -exportArchive \
   -archivePath "$archive_path" \
   -exportOptionsPlist "$export_options" \
@@ -85,4 +83,4 @@ xcodebuild -exportArchive \
   -allowProvisioningUpdates \
   | pretty
 
-echo "==> Uploaded build $build_number. It appears in TestFlight once App Store Connect finishes processing (usually 5-30 minutes)."
+echo "==> Uploaded version $version. It appears in TestFlight once App Store Connect finishes processing (usually 5-30 minutes)."

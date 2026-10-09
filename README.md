@@ -47,7 +47,7 @@ Signing is configured for the original author's team. To run on your own device,
 
 Every build goes to TestFlight first; an App Store release is a TestFlight build you promote.
 
-1. Set `MARKETING_VERSION` in `project.yml` to the version you're working toward (e.g. `1.1`) and regenerate.
+1. Set `MARKETING_VERSION` in `project.yml` to the version you're working toward, as `MAJOR.MINOR.PATCH` (e.g. `1.1.0`), and regenerate.
 2. Upload builds to TestFlight as often as you like:
 
    ```sh
@@ -55,7 +55,7 @@ Every build goes to TestFlight first; an App Store release is a TestFlight build
    scripts/testflight.sh --no-upload  # archive only
    ```
 
-   The build number is the archive time, `YYYYMMDD.HHMM` (e.g. `20261008.1542`). Uploading uses the Apple account signed in to Xcode.
+   Build numbers count up from 1. Xcode assigns the next one at upload time by asking App Store Connect, so there's nothing to bump or commit. Uploading uses the Apple account signed in to Xcode.
 3. In App Store Connect, pick the build for that version and submit it for review.
 4. Once the version is released, App Store Connect accepts no more builds for it — bump `MARKETING_VERSION` before the next upload.
 
