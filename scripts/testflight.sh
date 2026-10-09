@@ -9,7 +9,9 @@
 #   scripts/testflight.sh              archive and upload
 #   scripts/testflight.sh --no-upload  archive only
 #
-# Uploading uses the Apple account signed in to Xcode (Settings > Accounts).
+# Uploading uses the Apple account signed in to Xcode (Settings > Accounts). To use an
+# App Store Connect API key instead (as CI does), set ASC_KEY_PATH (the .p8 file),
+# ASC_KEY_ID and ASC_ISSUER_ID.
 
 set -euo pipefail
 
@@ -32,6 +34,15 @@ pretty() {
   if command -v xcbeautify > /dev/null; then xcbeautify; else cat; fi
 }
 
+auth=()
+if [[ -n "${ASC_KEY_PATH:-}" ]]; then
+  auth=(
+    -authenticationKeyPath "$ASC_KEY_PATH"
+    -authenticationKeyID "${ASC_KEY_ID:?ASC_KEY_ID must be set with ASC_KEY_PATH}"
+    -authenticationKeyIssuerID "${ASC_ISSUER_ID:?ASC_ISSUER_ID must be set with ASC_KEY_PATH}"
+  )
+fi
+
 build_dir="build/testflight/$(date '+%Y%m%d-%H%M%S')"
 archive_path="$build_dir/WearToday.xcarchive"
 export_options="$build_dir/ExportOptions.plist"
@@ -45,6 +56,7 @@ xcodebuild archive \
   -destination 'generic/platform=iOS' \
   -archivePath "$archive_path" \
   -allowProvisioningUpdates \
+  "${auth[@]}" \
   | pretty
 
 version=$(/usr/libexec/PlistBuddy -c 'Print :ApplicationProperties:CFBundleShortVersionString' "$archive_path/Info.plist")
@@ -81,6 +93,7 @@ xcodebuild -exportArchive \
   -exportOptionsPlist "$export_options" \
   -exportPath "$build_dir/export" \
   -allowProvisioningUpdates \
+  "${auth[@]}" \
   | pretty
 
 echo "==> Uploaded version $version. It appears in TestFlight once App Store Connect finishes processing (usually 5-30 minutes)."

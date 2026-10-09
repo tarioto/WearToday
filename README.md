@@ -59,6 +59,14 @@ Every build goes to TestFlight first; an App Store release is a TestFlight build
 3. In App Store Connect, pick the build for that version and submit it for review.
 4. Once the version is released, App Store Connect accepts no more builds for it — bump `MARKETING_VERSION` before the next upload.
 
+Merging to `main` also runs `scripts/testflight.sh` in CI (`.github/workflows/testflight.yml`), so TestFlight follows `main`. CI signs in with an App Store Connect API key (App Store Connect → Users and Access → Integrations, **Admin** role so Xcode can manage signing) stored as these repository secrets:
+
+- `ASC_KEY_P8` — the contents of the downloaded `AuthKey_XXXXXXXXXX.p8`
+- `ASC_KEY_ID` — the key ID
+- `ASC_ISSUER_ID` — the issuer ID shown above the keys list
+
+Without `ASC_KEY_P8`, the workflow skips the upload with a warning. It can also be run by hand from the Actions tab.
+
 TestFlight and App Store installs run the same binary. The app tells them apart at runtime (that's how TestFlight installs get `AppIcon-Beta`), so any other TestFlight-only behavior has to be decided the same way.
 
 ### Secret scanning
